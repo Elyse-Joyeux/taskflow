@@ -5,11 +5,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getToken } from '@/lib/api'
 import { useTheme } from '@/components/ThemeProvider'
-import BlurText from '@/components/bits/BlurText'
-import SpotlightCard from '@/components/bits/SpotlightCard'
-import ClickSpark from '@/components/bits/ClickSpark'
-import CountUp from '@/components/bits/CountUp'
-import FadeContent from '@/components/bits/FadeContent'
 
 function BrandMark({ size = 28 }: { size?: number }) {
   return (
@@ -25,7 +20,6 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'board' | 'list' | 'milestones'>('board')
   const [taskDone, setTaskDone] = useState(false)
-  const showDemo = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true'
 
   useEffect(() => {
     setMounted(true)
@@ -63,65 +57,30 @@ export default function Home() {
               )}
             </button>
           )}
-          {showDemo && <Link className="nav-login" href="/login?demo=1">Try the demo</Link>}
-          <Link className="nav-login" href="/login">Log in</Link>
-          <ClickSpark sparkColor="var(--violet)" sparkCount={8}>
-            <Link className="button button-primary button-sm" href="/signup">
-              Get started
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
-              </svg>
-            </Link>
-          </ClickSpark>
+                   <Link className="nav-login" href="/login">Log in</Link>
+          <Link className="button button-primary button-sm" href="/signup">Get started</Link>
         </div>
       </nav>
 
       {/* Hero */}
       <section className="landing-hero" id="preview">
         <div className="hero-copy">
-          <div className="hero-badge-pill">
-            <span className="hero-badge-dot" aria-hidden="true"/>
-            <span>Taskflow 2.0 is live</span>
-          </div>
           <h1>
-            <BlurText text="Make room for" delay={35}/>
-            <br/>
-            <span style={{ color: 'var(--violet)' }}>
-              <BlurText text="great work." delay={55}/>
-            </span>
+            Make room for
+            <br />
+            <span>great work.</span>
           </h1>
           <p className="hero-description">
-            The calm, high-velocity workspace to organize projects, move work
-            forward with keyboard-first ergonomics, and celebrate what your team
-            gets done.
+            A clear, calm place to plan projects, prioritize tasks, and keep your team moving together.
           </p>
           <div className="hero-actions">
-            <ClickSpark sparkColor="var(--violet)" sparkCount={10}>
-              <Link className="button button-primary" href="/signup">
-                Start for free
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
-                </svg>
-              </Link>
-            </ClickSpark>
+            <Link className="button button-primary" href="/signup">Start for free</Link>
             <Link className="button button-secondary" href="/login">Sign in</Link>
-            {showDemo && (
-              <Link href="/login?demo=1" style={{ fontSize: 14, color: 'var(--violet)', fontWeight: 600 }}>
-                Explore demo →
-              </Link>
-            )}
-          </div>
-          <div className="hero-note">
-            <span className="avatar-stack" aria-hidden="true"><i>J</i><i>M</i><i>A</i></span>
-            <span>Used by product teams shipping weekly.</span>
-          </div>
+                     </div>
         </div>
 
         {/* Hero visual */}
-        <FadeContent duration={0.6} delay={0.15}>
-          <div className="hero-visual" aria-label="Interactive Taskflow preview">
-            <div className="visual-orbit orbit-one" aria-hidden="true"/>
-            <div className="visual-orbit orbit-two" aria-hidden="true"/>
+        <div className="hero-visual" role="group" aria-label="Interactive Taskflow product preview">
             <div className="board-window">
               <div className="window-top">
                 <div className="window-dots" aria-hidden="true"><i/><i/><i/></div>
@@ -165,9 +124,9 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <div className="preview-interactive-tabs" role="tablist">
+                  <div className="preview-interactive-tabs" role="group" aria-label="Preview layout">
                     {(['board', 'list', 'milestones'] as const).map((tab) => (
-                      <button key={tab} type="button" role="tab" aria-selected={activeTab === tab}
+                      <button key={tab} type="button" aria-pressed={activeTab === tab}
                         className={`preview-tab-btn${activeTab === tab ? ' active' : ''}`}
                         onClick={() => setActiveTab(tab)}>
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -178,11 +137,15 @@ export default function Home() {
                   {activeTab === 'board' && (
                     <div className="preview-columns" role="tabpanel">
                       <div className="preview-column">
-                        <div className="preview-col-heading"><i className="project-dot purple" aria-hidden="true"/>To Do <span>3</span></div>
-                        <div className="preview-task" onClick={() => setTaskDone(!taskDone)} style={{ cursor: 'pointer' }} role="button" aria-label="Toggle task">
-                          <p>Research competitor flows</p>
-                          <div><span className="task-chip chip-purple">Research</span><i className="mini-avatar" aria-hidden="true"/></div>
-                        </div>
+                        <div className="preview-col-heading"><i className="project-dot purple" aria-hidden="true"/>To Do <span>{taskDone ? 2 : 3}</span></div>
+                        {!taskDone && (
+                          <button type="button" className="preview-task" aria-pressed={false}
+                            aria-label="Mark Research competitor flows complete"
+                            onClick={() => setTaskDone(true)}>
+                            <p>Research competitor flows</p>
+                            <div><span className="task-chip chip-purple">Research</span><i className="mini-avatar" aria-hidden="true"/></div>
+                          </button>
+                        )}
                         <div className="preview-task">
                           <p>Gather visual references</p>
                           <div><span className="task-chip chip-blue">Design</span><i className="mini-avatar mini-1" aria-hidden="true"/></div>
@@ -203,10 +166,12 @@ export default function Home() {
                       <div className="preview-column">
                         <div className="preview-col-heading"><i className="project-dot green" aria-hidden="true"/>Done <span>{taskDone ? 3 : 2}</span></div>
                         {taskDone && (
-                          <div className="preview-task" style={{ borderColor: 'var(--violet)' }}>
+                          <button type="button" className="preview-task" aria-pressed={true}
+                            aria-label="Move Research competitor flows back to To Do"
+                            onClick={() => setTaskDone(false)}>
                             <p>Research competitor flows</p>
                             <div><span className="task-chip chip-green">Done</span><i className="mini-avatar" aria-hidden="true"/></div>
-                          </div>
+                          </button>
                         )}
                         <div className="preview-task">
                           <p>Project brief</p>
@@ -263,51 +228,19 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="float-note" aria-live="polite">
-              <span className="float-check" aria-hidden="true">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <div>
-                <b>{taskDone ? 'Task marked done!' : 'Look at us go.'}</b>
-                <small>{taskDone ? 'Moved to Done.' : 'Another task, done.'}</small>
-              </div>
-              <span className="float-spark" aria-hidden="true">✳</span>
-            </div>
-            <div className="hero-star star-one" aria-hidden="true">✳</div>
-            <div className="hero-star star-two" aria-hidden="true">✳</div>
           </div>
-        </FadeContent>
-      </section>
-
-      {/* Stats strip */}
-      <section className="stats-strip" aria-label="Key metrics">
-        <div className="stats-strip-inner">
-          {[
-            { to: 99.9, decimals: 1, suffix: '%', label: 'Real-time sync reliability' },
-            { to: 50, prefix: '<', suffix: 'ms', label: 'Interaction latency' },
-            { to: 10, suffix: 'k+', label: 'Tasks shipped this month' },
-            { to: 0, suffix: '%', label: 'Bloat & distractions' },
-          ].map((s) => (
-            <div className="stats-item" key={s.label}>
-              <strong><CountUp to={s.to} decimals={s.decimals ?? 0} prefix={s.prefix ?? ''} suffix={s.suffix}/></strong>
-              <span>{s.label}</span>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Features */}
       <section className="feature-section" id="features">
-        <FadeContent duration={0.5}>
-          <div className="section-intro">
+        <div className="section-intro">
             <span className="section-kicker">Work in a better flow</span>
             <h2>All the moving parts.<br/><span>One peaceful place.</span></h2>
             <p>Everything your team needs to focus, organize projects, and celebrate what gets done.</p>
-          </div>
-        </FadeContent>
+        </div>
 
         <div className="feature-grid-v2">
-          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+          <article className="landing-spotlight">
             <div className="landing-spotlight-icon" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -316,9 +249,9 @@ export default function Home() {
             </div>
             <h3>Board & List views with Instant Undo</h3>
             <p>Reorder tasks effortlessly with fluid drag-and-drop or switch to a high-density table. Restore anything immediately with one-click Toast Undo.</p>
-          </SpotlightCard>
+          </article>
 
-          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+          <article className="landing-spotlight">
             <div className="landing-spotlight-icon" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/>
@@ -327,9 +260,9 @@ export default function Home() {
             </div>
             <h3>Command Palette at your fingertips</h3>
             <p>Press <kbd className="palette-kbd">Ctrl+K</kbd> or <kbd className="palette-kbd">/</kbd> anywhere to jump to projects, search tasks instantly, or switch workspaces without lifting your hands.</p>
-          </SpotlightCard>
+          </article>
 
-          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+          <article className="landing-spotlight">
             <div className="landing-spotlight-icon" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
@@ -337,32 +270,23 @@ export default function Home() {
             </div>
             <h3>Real-time presence & Live sync</h3>
             <p>Task changes, comments, and milestones stream across your team over WebSockets with optimistic updates — zero page reloads, always in sync.</p>
-          </SpotlightCard>
+          </article>
         </div>
       </section>
 
       {/* Closing CTA */}
       <section className="closing-cta" id="how-it-works">
-        <div className="closing-flower" aria-hidden="true">✳</div>
-        <span className="section-kicker" style={{ color: 'rgba(255,255,255,.8)' }}>A fresh start for your team</span>
+        <span className="section-kicker">A fresh start for your team</span>
         <h2>Ready when<br/>you are.</h2>
         <p>Bring your next big idea. We&apos;ll help with the flow.</p>
-        <ClickSpark sparkColor="#fff" sparkCount={10}>
-          <Link className="button button-primary" href="/signup">
-            Create your free workspace
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
-            </svg>
-          </Link>
-        </ClickSpark>
-        <span className="closing-footnote">No credit card required. Pure momentum.</span>
+        <Link className="button button-primary" href="/signup">Create your workspace</Link>
       </section>
 
       {/* Footer */}
       <footer className="landing-footer">
         <Link className="brand" href="/"><BrandMark size={22}/> <span>taskflow</span></Link>
         <span>Crafted for focus, clarity, and team momentum.</span>
-        <Link href="/login">Already have an account? <b>Sign in →</b></Link>
+        <Link href="/login">Already have an account? <b>Sign in</b></Link>
       </footer>
     </main>
   )

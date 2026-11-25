@@ -27,7 +27,6 @@ import { toast } from "sonner";
 
 import AppShell from "@/components/AppShell";
 import TaskModal from "@/components/TaskModal";
-import ClickSpark from "@/components/bits/ClickSpark";
 import { api, getToken } from "@/lib/api";
 import { getSocket } from "@/lib/socket";
 import { STATUS_LABEL, WORKFLOW, type Priority, type Status, type Task, type User } from "@/lib/types";
@@ -557,13 +556,13 @@ export default function Board() {
           {/* Subpage Links */}
           <div className="board-header-links">
             <Link className="board-header-link" href={`/projects/${id}/milestones`}>
-              ◈ Milestones
+              Milestones
             </Link>
             <Link className="board-header-link" href={`/projects/${id}/activity`}>
-              ✦ Activity
+              Activity
             </Link>
             <Link className="board-header-link" href={`/projects/${id}/recurring`}>
-              ↻ Recurring
+              Recurring
             </Link>
           </div>
 
@@ -574,28 +573,25 @@ export default function Board() {
               onClick={() => switchView("board")}
               aria-label="Board view"
             >
-              <span>▦</span> Board
+              Board
             </button>
             <button
               className={viewMode === "list" ? "active" : ""}
               onClick={() => switchView("list")}
               aria-label="List view"
             >
-              <span>☰</span> List
+              List
             </button>
           </div>
 
-          {/* Invite Button with ClickSpark */}
-          <ClickSpark sparkColor="#7c6df0">
-            <button
-              className="invite-trigger"
-              onClick={() => {
-                setInviteOpen(true);
-              }}
-            >
-              <span>＋</span> Invite people
-            </button>
-          </ClickSpark>
+          <button
+            className="invite-trigger"
+            onClick={() => {
+              setInviteOpen(true);
+            }}
+          >
+            <span>＋</span> Invite people
+          </button>
         </div>
 
         {/* Toolbar: Search, Filters, Count */}

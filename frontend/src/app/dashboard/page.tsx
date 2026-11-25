@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import CountUp from "@/components/bits/CountUp";
-import ClickSpark from "@/components/bits/ClickSpark";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 import { STATUS_LABEL, type Status } from "@/lib/types";
 
@@ -86,11 +84,9 @@ export default function DashboardPage() {
             <h1>Workspace dashboard</h1>
             <p>Live counts from your database, not a static mock.</p>
           </div>
-          <ClickSpark sparkColor="#7c6df0">
-            <Link className="button button-primary" href="/projects">
-              Open projects <span>↗</span>
-            </Link>
-          </ClickSpark>
+          <Link className="button button-primary" href="/projects">
+            Open projects <span>↗</span>
+          </Link>
         </div>
 
         {error && (
@@ -126,7 +122,7 @@ export default function DashboardPage() {
                 <span className="stat-icon">▦</span>
                 <div>
                   <strong>
-                    <CountUp to={data.stats.project_count} />
+                    {data.stats.project_count}
                   </strong>
                   <small>Projects</small>
                 </div>
@@ -135,7 +131,7 @@ export default function DashboardPage() {
                 <span className="stat-icon">◷</span>
                 <div>
                   <strong>
-                    <CountUp to={data.stats.open_count} />
+                    {data.stats.open_count}
                   </strong>
                   <small>Open tasks</small>
                 </div>
@@ -144,7 +140,7 @@ export default function DashboardPage() {
                 <span className="stat-icon">✓</span>
                 <div>
                   <strong>
-                    <CountUp to={data.stats.completed_this_week} />
+                    {data.stats.completed_this_week}
                   </strong>
                   <small>Done this week</small>
                 </div>
@@ -153,7 +149,7 @@ export default function DashboardPage() {
                 <span className="stat-icon">!</span>
                 <div>
                   <strong>
-                    <CountUp to={data.stats.overdue_count} />
+                    {data.stats.overdue_count}
                   </strong>
                   <small>Overdue</small>
                 </div>
@@ -172,7 +168,7 @@ export default function DashboardPage() {
                           <i style={{ width: `${Math.max(4, (count / totalStatus) * 100)}%` }} />
                         </div>
                         <b>
-                          <CountUp to={count} />
+                          {count}
                         </b>
                       </div>
                     );
@@ -193,7 +189,7 @@ export default function DashboardPage() {
                           <i style={{ width: `${Math.max(4, (count / totalPriority) * 100)}%` }} />
                         </div>
                         <b>
-                          <CountUp to={count} />
+                          {count}
                         </b>
                       </div>
                     );

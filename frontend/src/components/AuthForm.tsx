@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { api, setWorkspaceId } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
-import ClickSpark from "@/components/bits/ClickSpark";
 
 function BrandMark() {
   return (
@@ -76,8 +74,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-
-  const showDemo = !isSignup && process.env.NEXT_PUBLIC_ENABLE_DEMO === "true";
 
   useEffect(() => {
     if (!isSignup && new URLSearchParams(window.location.search).get("passwordReset") === "1") {
@@ -197,44 +193,32 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               : "Pick up right where your team left off. Every task, update, and discussion in sync."}
           </p>
 
-          {/* Interactive Preview Card */}
-          <div className="story-board">
+          <div className="story-board" role="group" aria-label="Example launch project board">
             <div className="story-board-head">
               <span className="mac-lights" aria-hidden="true"><i /><i /><i /></span>
-              <span>PROJECT IN MOTION</span>
-              <span>
-                Q4 PRODUCT ROADMAP <b>▾</b>
-              </span>
+              <span>SAMPLE PROJECT</span>
+              <span>LAUNCH ROADMAP</span>
             </div>
             <div className="story-item">
-              <span className="story-check checked">✓</span>
-              <span>Refactor Kanban drag & drop</span>
-              <small>DONE</small>
+              <span>Define the launch brief</span>
+              <small className="done">DONE</small>
             </div>
             <div className="story-item">
-              <span className="story-check underway">↗</span>
-              <span>Add Command Palette & Search</span>
-              <small>IN PROGRESS</small>
+              <span>Review the sprint plan</span>
+              <small className="in-progress">IN PROGRESS</small>
             </div>
             <div className="story-item">
-              <span className="story-check">○</span>
-              <span>Launch high contrast dark theme</span>
+              <span>Share the launch checklist</span>
               <small>UP NEXT</small>
             </div>
             <div className="story-board-foot">
-              <div className="avatar-stack">
-                <i>J</i>
-                <i>M</i>
-                <i>A</i>
-              </div>
-              <span>3 teammates active right now</span>
-              <b>✦</b>
+              <span>Tasks, milestones, and team updates</span>
             </div>
           </div>
         </div>
 
         <div className="auth-story-foot">
-          <span>Enterprise-grade security · Realtime WebSockets · Fast keyboard shortcuts</span>
+          <span>Project boards · Team updates · Keyboard shortcuts</span>
         </div>
       </section>
 
@@ -254,7 +238,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </div>
         <div className="auth-form-wrap">
           <div className="auth-eyebrow">
-            <span>{isSignup ? "✳" : "✦"}</span>{" "}
             {isSignup ? "GET STARTED IN SECONDS" : "WELCOME BACK"}
           </div>
           <h2>
@@ -269,42 +252,10 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </p>
 
           <form className="auth-form" onSubmit={submit}>
-            <AnimatePresence>
-              {notice && (
-                <motion.p
-                  className="settings-success"
-                  role="status"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                >
-                  ✓ {notice}
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            {showDemo && (
-              <div className="demo-login-card">
-                <div>
-                  <strong>Want a quick preview?</strong>
-                  <span>Explore Taskflow with sample data and team activity.</span>
-                </div>
-                <button
-                  className="button button-quiet demo-login-button"
-                  type="button"
-                  onClick={() => {
-                    setForm({
-                      name: "",
-                      email: "demo@taskflow.local",
-                      password: "TaskflowDemo2026!",
-                    });
-                    setError("");
-                    setNotice("Demo credentials filled! Click 'Sign in to Taskflow' below.");
-                  }}
-                >
-                  Fill demo account <span>↗</span>
-                </button>
-              </div>
+            {notice && (
+              <p className="settings-success" role="status">
+                {notice}
+              </p>
             )}
 
             {isSignup && (
@@ -393,39 +344,25 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
             {!isSignup && (
               <div className="auth-options">
-                <label className="remember-option">
-                  <input type="checkbox" defaultChecked /> <span>Keep me signed in</span>
-                </label>
                 <Link href="/forgot-password">Forgot password?</Link>
               </div>
             )}
 
-            <AnimatePresence>
-              {error && (
-                <motion.p
-                  className="auth-error"
-                  role="alert"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                >
-                  {error}
-                </motion.p>
-              )}
-            </AnimatePresence>
+            {error && (
+              <p className="auth-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <ClickSpark sparkColor="#7c6df0">
-              <button className="button button-primary auth-submit" type="submit" disabled={busy}>
-                {busy
-                  ? isSignup
-                    ? "Creating your space…"
-                    : "Signing you in…"
-                  : isSignup
-                    ? "Create free account"
-                    : "Sign in to Taskflow"}
-                <span>↗</span>
-              </button>
-            </ClickSpark>
+            <button className="button button-primary auth-submit" type="submit" disabled={busy}>
+              {busy
+                ? isSignup
+                  ? "Creating your space…"
+                  : "Signing you in…"
+                : isSignup
+                  ? "Create free account"
+                  : "Sign in to Taskflow"}
+            </button>
           </form>
 
           <div className="auth-switch">
@@ -441,9 +378,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </Link>
           </div>
 
-          <div className="auth-privacy">
-            <span>Secure</span> SSO-ready · Encrypted sessions · GDPR ready
-          </div>
+              <div className="auth-privacy">
+                Passwords are hashed · Sessions expire after 8 hours
+              </div>
         </div>
         </div>
 

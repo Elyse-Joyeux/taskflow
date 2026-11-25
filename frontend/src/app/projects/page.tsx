@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
-import SpotlightCard from "@/components/bits/SpotlightCard";
-import ClickSpark from "@/components/bits/ClickSpark";
-import CountUp from "@/components/bits/CountUp";
 import { api, getName, getToken, getWorkspaceId } from "@/lib/api";
 
 type Project = { id: string; name: string; task_count: number };
@@ -90,11 +88,9 @@ export default function Projects() {
               onChange={(e) => setProjectName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && create()}
             />
-            <ClickSpark sparkColor="#7c6df0">
-              <button className="button button-primary" onClick={create} disabled={creating}>
-                {creating ? "Creating…" : "New project"}
-              </button>
-            </ClickSpark>
+            <button className="button button-primary" onClick={create} disabled={creating}>
+              {creating ? "Creating…" : "New project"}
+            </button>
           </div>
         </section>
 
@@ -104,30 +100,17 @@ export default function Projects() {
           </div>
         )}
 
-        <section className="workspace-stats">
+        <section className="workspace-stats" aria-label="Workspace overview">
           <div className="stat-card">
-            <span className="stat-icon">▦</span>
             <div>
-              <strong>
-                <CountUp to={list.length} />
-              </strong>
-              <small>Active projects</small>
+              <strong>{list.length}</strong>
+              <small>Projects in workspace</small>
             </div>
           </div>
           <div className="stat-card">
-            <span className="stat-icon">✓</span>
             <div>
-              <strong>
-                <CountUp to={totalTasks} />
-              </strong>
-              <small>Tasks in motion</small>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">✳</span>
-            <div>
-              <strong>Good</strong>
-              <small>Time to make progress</small>
+              <strong>{totalTasks}</strong>
+              <small>Tasks across projects</small>
             </div>
           </div>
         </section>
@@ -151,42 +134,29 @@ export default function Projects() {
         {/* Empty state */}
         {!loading && list.length === 0 && (
           <section className="empty-state">
-            <div className="empty-illustration">✳</div>
-            <h3>A good idea starts somewhere.</h3>
-            <p>Create your first project and give your team a place to get things moving.</p>
+            <h3>You don&apos;t have any projects yet.</h3>
+            <p>Create a project to give your team a place to organize the work.</p>
             <button
-              className="p"
-              style={{ padding: "10px 14px" }}
+              className="button button-secondary"
               onClick={() => document.querySelector<HTMLInputElement>(".workspace-create input")?.focus()}
             >
-              ＋ Create a project
+              Name your first project
             </button>
           </section>
         )}
 
-        {/* Project grid with SpotlightCard */}
         {!loading && list.length > 0 && (
           <div className="grid">
-            {list.map((project, i) => (
-              <SpotlightCard
-                key={project.id}
-                className="pc"
-                spotlightColor="rgba(124, 109, 240, 0.22)"
-                onClick={() => router.push("/projects/" + project.id)}
-              >
-                <div className="project-card-top">
-                  <span className="project-card-icon">{["▦", "✳", "◈"][i % 3]}</span>
-                  <span className="project-more">•••</span>
-                </div>
-                <b>{project.name}</b>
-                <p className="mut">A shared space for your team’s next steps.</p>
+            {list.map((project) => (
+              <Link key={project.id} className="pc" href={`/projects/${project.id}`}>
+                <h3>{project.name}</h3>
                 <div className="project-card-footer">
                   <span>
                     {project.task_count} {project.task_count === 1 ? "task" : "tasks"}
                   </span>
-                  <span className="project-card-open">Open</span>
+                  <span className="project-card-open">Open project</span>
                 </div>
-              </SpotlightCard>
+              </Link>
             ))}
           </div>
         )}

@@ -4,8 +4,6 @@ import { useEffect, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import AnimatedList from "@/components/bits/AnimatedList";
-import ClickSpark from "@/components/bits/ClickSpark";
 import { toast } from "sonner";
 import { api, getToken } from "@/lib/api";
 import { WORKFLOW, type Priority, type Status, type Task } from "@/lib/types";
@@ -77,11 +75,9 @@ export default function MyTasksPage() {
             <h1>My tasks</h1>
             <p>Everything assigned to you, all in one place.</p>
           </div>
-          <ClickSpark sparkColor="#7c6df0">
-            <Link className="button button-primary" href="/projects">
-              Browse projects <span>↗</span>
-            </Link>
-          </ClickSpark>
+          <Link className="button button-primary" href="/projects">
+            Browse projects <span>↗</span>
+          </Link>
         </div>
 
         <div className="task-filter-bar">
@@ -114,7 +110,7 @@ export default function MyTasksPage() {
         {error && <p className="auth-error">{error}</p>}
         {loading && <p className="mut" role="status">Loading your tasks…</p>}
 
-        <AnimatedList className="assigned-task-list">
+        <div className="assigned-task-list">
           {visible.map((task) => (
             <article
               className="assigned-task"
@@ -127,7 +123,7 @@ export default function MyTasksPage() {
                 aria-label={task.status === "done" ? `Reopen ${task.title}` : `Complete ${task.title}`}
                 onClick={(event) => void completeTask(task, event)}
               >
-                {task.status === "done" ? "✓" : task.status === "in_progress" ? "↗" : ""}
+                {task.status === "done" ? "✓" : ""}
               </button>
               <div className="assigned-task-main">
                 <span className="assigned-project">{task.project_name}</span>
@@ -148,7 +144,7 @@ export default function MyTasksPage() {
               <span className="assigned-arrow">→</span>
             </article>
           ))}
-        </AnimatedList>
+        </div>
 
         {visible.length === 0 && !error && !loading && (
           <div className="empty-state">
