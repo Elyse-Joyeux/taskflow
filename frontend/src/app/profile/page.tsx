@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { api, getToken } from "@/lib/api";
 
 type Profile = { id: string; display_name: string; email: string; created_at: string };
@@ -27,7 +28,7 @@ export default function ProfilePage() {
     <AppShell>
       <div className="profile-wrap">
         <Link className="back-link" href="/projects">
-          ← Back to workspace
+          <ArrowLeft aria-hidden="true" size={15} /> Back to workspace
         </Link>
         {error && <p className="auth-error">{error}</p>}
         {profile && (
@@ -42,7 +43,7 @@ export default function ProfilePage() {
                 <p>{profile.email}</p>
               </div>
               <Link className="button button-primary" href="/settings">
-                Edit profile <span>↗</span>
+                Edit profile <ArrowUpRight aria-hidden="true" size={15} />
               </Link>
             </section>
             <section className="profile-detail-grid">
@@ -71,7 +72,7 @@ export default function ProfilePage() {
                 <span className="settings-icon">⚙</span>
                 <h2>Make it yours</h2>
                 <p>Update your personal details or change your password in account settings.</p>
-                <Link href="/settings">Go to account settings →</Link>
+                <Link href="/settings">Go to account settings <ArrowRight aria-hidden="true" size={15} /></Link>
               </article>
             </section>
           </>

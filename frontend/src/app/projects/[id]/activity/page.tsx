@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { api, getToken } from "@/lib/api";
 
 type ActivityEvent = {
@@ -41,7 +42,7 @@ function actionLabel(action: string) {
 const ACTION_ICON: Record<string, string> = {
   "task.created": "✚",
   "task.updated": "✎",
-  "task.status_changed": "↗",
+
   "task.deleted": "⌫",
   "task.commented": "◯",
   "member.added": "＋",
@@ -88,7 +89,7 @@ export default function ProjectActivityPage() {
             <h1>Activity feed</h1>
             <p>Every change, comment, and member action in this project.</p>
           </div>
-          <Link className="button button-quiet" href={`/projects/${id}`}>← Back to board</Link>
+          <Link className="button button-quiet" href={`/projects/${id}`}><ArrowLeft aria-hidden="true" size={15} /> Back to board</Link>
         </div>
 
         {error && <p className="auth-error" role="alert">{error}</p>}
@@ -105,7 +106,9 @@ export default function ProjectActivityPage() {
             )}
             {events.map((ev) => (
               <article className="community-activity activity-feed-item" key={ev.id}>
-                <span className="activity-icon-circle">{ACTION_ICON[ev.action] ?? "✦"}</span>
+                  <span className="activity-icon-circle">
+                    {ev.action === "task.status_changed" ? <ArrowUpRight aria-hidden="true" size={14} /> : ACTION_ICON[ev.action] ?? "✦"}
+                  </span>
                 <div className="activity-feed-content">
                   <p>
                     <b>{ev.actor_name || "Someone"}</b> {actionLabel(ev.action)}
@@ -126,9 +129,9 @@ export default function ProjectActivityPage() {
 
           {pages > 1 && (
             <div className="pagination-row">
-              <button className="button button-quiet" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
+              <button className="button button-quiet" disabled={page <= 1} onClick={() => setPage(p => p - 1)}><ArrowLeft aria-hidden="true" size={14} /> Previous</button>
               <span>Page {page} of {pages}</span>
-              <button className="button button-quiet" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+              <button className="button button-quiet" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>Next <ArrowRight aria-hidden="true" size={14} /></button>
             </div>
           )}
         </section>

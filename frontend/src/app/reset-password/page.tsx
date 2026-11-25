@@ -2,6 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowUpRight, KeyRound, LockKeyhole } from "lucide-react";
 import { api } from "@/lib/api";
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function ResetPasswordPage() {
     }
   }
   return (
-    <main className="auth-shell">
+    <main id="content" className="auth-shell">
       <section className="auth-story">
         <Link className="brand auth-brand" href="/">
           <span className="brand-mark">
@@ -78,7 +79,7 @@ export default function ResetPasswordPage() {
         </div>
         <div className="auth-form-wrap">
           <div className="auth-eyebrow">
-            <span>✦</span> SET A NEW PASSWORD
+            <KeyRound aria-hidden="true" size={13} /> SET A NEW PASSWORD
           </div>
           <h2>Make it a good one.</h2>
           <p className="auth-subtitle">
@@ -94,7 +95,7 @@ export default function ResetPasswordPage() {
               <label>
                 New password
                 <div className="input-shell">
-                  <span className="input-icon">⌑</span>
+                  <span className="input-icon"><LockKeyhole aria-hidden="true" size={15} /></span>
                   <input
                     type="password"
                     autoComplete="new-password"
@@ -109,7 +110,7 @@ export default function ResetPasswordPage() {
               <label>
                 Confirm new password
                 <div className="input-shell">
-                  <span className="input-icon">⌑</span>
+                  <span className="input-icon"><LockKeyhole aria-hidden="true" size={15} /></span>
                   <input
                     type="password"
                     autoComplete="new-password"
@@ -131,7 +132,7 @@ export default function ResetPasswordPage() {
                 disabled={busy}
               >
                 {busy ? "Updating password…" : "Reset password"}
-                <span>↗</span>
+                <ArrowUpRight aria-hidden="true" size={15} />
               </button>
             </form>
           )}
@@ -140,8 +141,8 @@ export default function ResetPasswordPage() {
           </div>
         </div>
         <footer className="auth-footer">
-          <Link href="/">← Back to Taskflow</Link>
-          <span>© 2026 Taskflow</span>
+          <Link href="/"><ArrowLeft aria-hidden="true" size={15} /> Back to Taskflow</Link>
+          <span className="site-copyright">© 2026 Taskflow Inc. All rights reserved.</span>
         </footer>
       </section>
     </main>

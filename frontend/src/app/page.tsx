@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getToken } from '@/lib/api'
+import { CircleCheck, ListChecks, Target, UsersRound } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
 function BrandMark({ size = 28 }: { size?: number }) {
@@ -65,18 +66,24 @@ export default function Home() {
       {/* Hero */}
       <section className="landing-hero" id="preview">
         <div className="hero-copy">
+          <span className="hero-kicker">PROJECT MANAGEMENT, BUILT FOR FOCUS</span>
           <h1>
             Make room for
             <br />
             <span>great work.</span>
           </h1>
           <p className="hero-description">
-            A clear, calm place to plan projects, prioritize tasks, and keep your team moving together.
+            Taskflow brings projects, tasks, and team updates into one calm workspace—so everyone knows what matters now, who owns it, and what comes next.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/signup">Start for free</Link>
             <Link className="button button-secondary" href="/login">Sign in</Link>
-                     </div>
+          </div>
+          <ul className="hero-proof" aria-label="What Taskflow helps your team do">
+            <li><CircleCheck aria-hidden="true" size={15} /> Keep priorities clear</li>
+            <li><ListChecks aria-hidden="true" size={15} /> See the next step</li>
+            <li><UsersRound aria-hidden="true" size={15} /> Stay in sync</li>
+          </ul>
         </div>
 
         {/* Hero visual */}
@@ -231,6 +238,43 @@ export default function Home() {
           </div>
       </section>
 
+      {/* Product introduction */}
+      <section className="landing-intro" id="how-it-works" aria-labelledby="landing-intro-title">
+        <div className="landing-intro-copy">
+          <span className="section-kicker">A better rhythm for project work</span>
+          <h2 id="landing-intro-title">From moving pieces to <span>shared momentum.</span></h2>
+          <p>
+            When plans, ownership, and conversations live in different places, it&apos;s hard to see progress. Taskflow brings the whole project together, giving your team a steady place to make decisions and keep good work moving.
+          </p>
+        </div>
+        <div className="landing-intro-steps">
+          <article className="landing-intro-step">
+            <span className="intro-step-icon"><Target aria-hidden="true" size={18} /></span>
+            <div>
+              <span className="intro-step-number">01</span>
+              <h3>Start with a clear plan</h3>
+              <p>Turn big goals into visible tasks, milestones, and ownership.</p>
+            </div>
+          </article>
+          <article className="landing-intro-step">
+            <span className="intro-step-icon"><ListChecks aria-hidden="true" size={18} /></span>
+            <div>
+              <span className="intro-step-number">02</span>
+              <h3>Keep the next move obvious</h3>
+              <p>Give everyone a quick view of what&apos;s moving and what needs attention.</p>
+            </div>
+          </article>
+          <article className="landing-intro-step">
+            <span className="intro-step-icon"><UsersRound aria-hidden="true" size={18} /></span>
+            <div>
+              <span className="intro-step-number">03</span>
+              <h3>Make progress together</h3>
+              <p>Keep project updates close to the work, so your team stays in sync.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="feature-section" id="features">
         <div className="section-intro">
@@ -275,7 +319,7 @@ export default function Home() {
       </section>
 
       {/* Closing CTA */}
-      <section className="closing-cta" id="how-it-works">
+      <section className="closing-cta" id="get-started">
         <span className="section-kicker">A fresh start for your team</span>
         <h2>Ready when<br/>you are.</h2>
         <p>Bring your next big idea. We&apos;ll help with the flow.</p>
@@ -284,9 +328,14 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="landing-footer">
-        <Link className="brand" href="/"><BrandMark size={22}/> <span>taskflow</span></Link>
-        <span>Crafted for focus, clarity, and team momentum.</span>
-        <Link href="/login">Already have an account? <b>Sign in</b></Link>
+        <div className="landing-footer-brand">
+          <Link className="brand" href="/"><BrandMark size={22}/> <span>taskflow</span></Link>
+          <span>Crafted for focus, clarity, and team momentum.</span>
+        </div>
+        <div className="landing-footer-meta">
+          <span className="site-copyright">© 2026 Taskflow Inc. All rights reserved.</span>
+          <Link href="/login">Already have an account? <b>Sign in</b></Link>
+        </div>
       </footer>
     </main>
   )

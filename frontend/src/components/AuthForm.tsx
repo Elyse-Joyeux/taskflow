@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { api, setWorkspaceId } from "@/lib/api";
+import AeroShards from "@/components/AeroShards";
 import { useTheme } from "@/components/ThemeProvider";
 
 function BrandMark() {
@@ -74,12 +76,28 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [shardsEnabled, setShardsEnabled] = useState(false);
 
   useEffect(() => {
     if (!isSignup && new URLSearchParams(window.location.search).get("passwordReset") === "1") {
       setNotice("Your password has been updated. Sign in with your new password.");
     }
   }, [isSignup]);
+
+  useEffect(() => {
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktopViewport = window.matchMedia("(min-width: 861px)");
+    const updateShaderPreference = () => {
+      setShardsEnabled(desktopViewport.matches && !motionPreference.matches);
+    };
+    updateShaderPreference();
+    motionPreference.addEventListener("change", updateShaderPreference);
+    desktopViewport.addEventListener("change", updateShaderPreference);
+    return () => {
+      motionPreference.removeEventListener("change", updateShaderPreference);
+      desktopViewport.removeEventListener("change", updateShaderPreference);
+    };
+  }, []);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -144,11 +162,12 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const strength = getPasswordStrength();
 
   return (
-    <main className="auth-shell">
+    <main id="content" className="auth-shell">
       {/* Top Floating Controls */}
       <div className="auth-floating-bar">
         <Link className="auth-back-home" href="/">
-          ← Back to Taskflow
+          <ArrowLeft aria-hidden="true" size={15} />
+          <span>Back to Taskflow</span>
         </Link>
         <button
           className="auth-theme-toggle-btn"
@@ -163,6 +182,30 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       {/* Left Story Section */}
       <section className="auth-story">
+        {shardsEnabled && (
+          <div className="auth-shard-layer" aria-hidden="true">
+            <AeroShards
+              shardColor={resolvedTheme === "dark" ? "#9787f2" : "#7062c9"}
+              accentColor={resolvedTheme === "dark" ? "#58d6c5" : "#2f9f90"}
+              lightMode={resolvedTheme !== "dark"}
+              placement="full"
+              material="glass"
+              markers="plus"
+              count={560}
+              depthOfField={0.65}
+              glow={0.4}
+              vignette={0.38}
+              mouseInteraction
+              mouseStrength={0.45}
+              parallax={0.35}
+              pulseOnClick
+              holdToGather
+              dpr={1.25}
+              style={{ width: "100%", height: "100%" }}
+              onError={() => setShardsEnabled(false)}
+            />
+          </div>
+        )}
         <Link className="brand auth-brand" href="/">
           <BrandMark />
           <span>taskflow</span>
@@ -385,7 +428,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </div>
 
         <footer className="auth-footer">
-          <span>© 2026 Taskflow Inc. All rights reserved.</span>
+          <span className="site-copyright">© 2026 Taskflow Inc. All rights reserved.</span>
           <div className="auth-footer-links">
             <Link href="/">Home</Link>
             <Link href="/forgot-password">Reset password</Link>
