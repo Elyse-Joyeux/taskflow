@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 
 type Account = {
@@ -86,9 +86,8 @@ export default function SettingsPage() {
     }
   }
   return (
-    <>
-      <Header />
-      <main className="settings-wrap">
+    <AppShell>
+      <div className="settings-wrap">
         <div className="settings-title">
           <span className="workspace-overline">YOUR ACCOUNT</span>
           <h1>Settings</h1>
@@ -221,7 +220,7 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

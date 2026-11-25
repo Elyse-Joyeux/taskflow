@@ -1,28 +1,369 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getToken } from '@/lib/api'
+import { useTheme } from '@/components/ThemeProvider'
+import BlurText from '@/components/bits/BlurText'
+import SpotlightCard from '@/components/bits/SpotlightCard'
+import ClickSpark from '@/components/bits/ClickSpark'
+import CountUp from '@/components/bits/CountUp'
+import FadeContent from '@/components/bits/FadeContent'
 
-function Mark({ light = false }: { light?: boolean }) {
-  return <span className={`brand-mark${light ? ' brand-mark-light' : ''}`} aria-hidden="true"><span /><span /><span /><span /></span>
+function BrandMark({ size = 28 }: { size?: number }) {
+  return (
+    <span className="brand-mark" aria-hidden="true" style={{ width: size, height: size }}>
+      <span /><span /><span /><span />
+    </span>
+  )
 }
 
 export default function Home() {
   const router = useRouter()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<'board' | 'list' | 'milestones'>('board')
+  const [taskDone, setTaskDone] = useState(false)
   const showDemo = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true'
-  useEffect(() => { if (getToken()) router.replace('/projects') }, [router])
 
-  return <main className="landing">
-    <nav className="landing-nav"><Link className="brand" href="/"><Mark /> <span>taskflow</span></Link><div className="landing-links"><a href="#features">Product</a><a href="#how-it-works">How it works</a></div><div className="nav-actions">{showDemo && <Link className="nav-login demo-nav-link" href="/login?demo=1">Try the demo</Link>}<Link className="nav-login" href="/login">Log in</Link><Link className="button button-primary button-small" href="/signup">Get started <span>↗</span></Link></div></nav>
-    <section className="landing-hero">
-      <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-dot" /> A clearer way to work together</div><h1>Make room for<br /><span>great work.</span></h1><p className="hero-description">The calm, collaborative space to plan projects, move work forward, and celebrate what your team gets done.</p><div className="hero-actions"><Link className="button button-primary" href="/signup">Start planning for free <span>↗</span></Link><Link className="button button-quiet" href="/login">Sign in <span>→</span></Link>{showDemo && <Link className="demo-hero-link" href="/login?demo=1">Explore the demo workspace</Link>}</div><div className="hero-note"><span className="avatar-stack"><i>J</i><i>M</i><i>A</i></span><span>Good work happens together.</span></div></div>
-      <div className="hero-visual" aria-label="Preview of a project board"><div className="visual-orbit orbit-one" /><div className="visual-orbit orbit-two" /><div className="board-window"><div className="window-top"><div className="window-dots"><i/><i/><i/></div><span>YOUR WORKSPACE</span><span className="window-menu">•••</span></div><div className="preview-layout"><aside className="preview-side"><div className="preview-brand"><Mark light /> taskflow</div><div className="side-label">WORKSPACE</div><div className="side-item active"><b>▦</b> Projects</div><div className="side-item"><b>◷</b> My tasks</div><div className="side-label side-label-lower">YOUR PROJECTS</div><div className="side-project"><i className="project-dot purple"/> Website refresh</div><div className="side-project"><i className="project-dot green"/> Product launch</div><div className="side-project"><i className="project-dot amber"/> Q4 planning</div></aside><div className="preview-main"><div className="preview-topline"><span>Projects　/　Website refresh</span><span className="preview-members"><i>J</i><i>M</i><i>A</i><b>+</b></span></div><div className="preview-heading"><div><span className="preview-kicker">DESIGN TEAM</span><h3>Website refresh</h3></div><span className="preview-share">↗ <span>Share</span></span></div><div className="preview-tabs"><b>Board</b><span>Activity</span><span>Files</span></div><div className="preview-columns">{[['TO DO','purple','Research competitors','Gather visual references','Review current site'],['IN PROGRESS','blue','Homepage concepts','Write new headlines'],['DONE','green','Project brief','Team kickoff']].map(([label,tone,...items])=><div className="preview-column" key={label}><div className="preview-col-heading"><i className={`project-dot ${tone}`} />{label}<span>{items.length}</span></div>{items.map((item,i)=><div className="preview-task" key={item}><p>{item}</p><div><span className={`task-chip chip-${tone}`}>{i===0?'Design':'Planning'}</span><i className={`mini-avatar mini-${i}`} /></div></div>)}<div className="preview-add">＋ Add task</div></div>)}</div></div></div></div><div className="float-note"><span className="float-check">✓</span><div><b>Look at us go.</b><small>Another task, done.</small></div><span className="float-spark">✳</span></div><div className="hero-star star-one">✳</div><div className="hero-star star-two">✳</div></div>
-    </section>
-    <section className="trust-strip"><span>LESS CHASING, MORE MOMENTUM</span><div><b>Clear priorities</b><i/> <b>Thoughtful teamwork</b><i/> <b>Progress you can see</b></div></section>
-    <section className="feature-section" id="features"><div className="section-intro"><span className="section-kicker">WORK, IN A BETTER FLOW</span><h2>All the moving parts.<br /><span>One peaceful place.</span></h2><p>From the first idea to the final checkmark, give your team a workspace that makes it easier to focus on what matters.</p></div><div className="feature-grid"><article className="feature-card feature-lilac"><span className="feature-icon">▦</span><h3>See the whole picture</h3><p>Organize projects on a board that makes priorities and progress feel obvious.</p><div className="mini-progress"><span/><span/><span/></div></article><article className="feature-card feature-peach"><span className="feature-icon">↗</span><h3>Make teamwork feel easy</h3><p>Bring people into the work with shared tasks, clear owners, and useful conversations.</p><div className="feature-avatars"><i>J</i><i>M</i><i>A</i><span>your whole crew</span></div></article><article className="feature-card feature-mint"><span className="feature-icon">◷</span><h3>Keep good work moving</h3><p>Stay in the loop with live updates that keep everyone on the same page.</p><div className="activity-lines"><span>✳ Maya moved a task <b>just now</b></span><span>✓ Homepage concepts <b>completed</b></span></div></article></div></section>
-    <section className="closing-cta" id="how-it-works"><div className="closing-flower">✳</div><span className="section-kicker">A FRESH START FOR YOUR TEAM</span><h2>Ready when<br />you are.</h2><p>Bring your next big idea. We’ll help with the flow.</p><Link className="button button-primary" href="/signup">Create your free workspace <span>↗</span></Link><span className="closing-footnote">No credit card. Just a better way to work.</span></section>
-    <footer className="landing-footer"><Link className="brand" href="/"><Mark/> <span>taskflow</span></Link><span>Made for the work you do together.</span><Link href="/login">Already have an account? <b>Sign in →</b></Link></footer>
-  </main>
+  useEffect(() => {
+    setMounted(true)
+    if (getToken()) router.replace('/projects')
+  }, [router])
+
+  return (
+    <main className="landing" id="content">
+
+      {/* Nav */}
+      <nav className="landing-nav">
+        <Link className="brand" href="/"><BrandMark /> <span>taskflow</span></Link>
+        <div className="landing-links">
+          <a href="#features">Features</a>
+          <a href="#preview">Product tour</a>
+          <a href="#how-it-works">Why Taskflow</a>
+        </div>
+        <div className="nav-actions">
+          {mounted && (
+            <button type="button" className="landing-theme-toggle"
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle theme">
+              {resolvedTheme === 'dark' ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
+          )}
+          {showDemo && <Link className="nav-login" href="/login?demo=1">Try the demo</Link>}
+          <Link className="nav-login" href="/login">Log in</Link>
+          <ClickSpark sparkColor="var(--violet)" sparkCount={8}>
+            <Link className="button button-primary button-sm" href="/signup">
+              Get started
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </Link>
+          </ClickSpark>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="landing-hero" id="preview">
+        <div className="hero-copy">
+          <div className="hero-badge-pill">
+            <span className="hero-badge-dot" aria-hidden="true"/>
+            <span>Taskflow 2.0 is live</span>
+          </div>
+          <h1>
+            <BlurText text="Make room for" delay={35}/>
+            <br/>
+            <span style={{ color: 'var(--violet)' }}>
+              <BlurText text="great work." delay={55}/>
+            </span>
+          </h1>
+          <p className="hero-description">
+            The calm, high-velocity workspace to organize projects, move work
+            forward with keyboard-first ergonomics, and celebrate what your team
+            gets done.
+          </p>
+          <div className="hero-actions">
+            <ClickSpark sparkColor="var(--violet)" sparkCount={10}>
+              <Link className="button button-primary" href="/signup">
+                Start for free
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+                </svg>
+              </Link>
+            </ClickSpark>
+            <Link className="button button-secondary" href="/login">Sign in</Link>
+            {showDemo && (
+              <Link href="/login?demo=1" style={{ fontSize: 14, color: 'var(--violet)', fontWeight: 600 }}>
+                Explore demo →
+              </Link>
+            )}
+          </div>
+          <div className="hero-note">
+            <span className="avatar-stack" aria-hidden="true"><i>J</i><i>M</i><i>A</i></span>
+            <span>Used by product teams shipping weekly.</span>
+          </div>
+        </div>
+
+        {/* Hero visual */}
+        <FadeContent duration={0.6} delay={0.15}>
+          <div className="hero-visual" aria-label="Interactive Taskflow preview">
+            <div className="visual-orbit orbit-one" aria-hidden="true"/>
+            <div className="visual-orbit orbit-two" aria-hidden="true"/>
+            <div className="board-window">
+              <div className="window-top">
+                <div className="window-dots" aria-hidden="true"><i/><i/><i/></div>
+                <span>Website refresh</span>
+                <span className="window-menu" aria-hidden="true">•••</span>
+              </div>
+              <div className="preview-layout">
+                <aside className="preview-side">
+                  <div className="preview-brand"><BrandMark size={18}/> taskflow</div>
+                  <div className="side-label">Workspace</div>
+                  <div className="side-item active">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="10" y="3" width="12" height="10" rx="1"/><rect x="10" y="15" width="12" height="6" rx="1"/></svg>
+                    Projects
+                  </div>
+                  <div className="side-item">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    My tasks
+                  </div>
+                  <div className="side-label side-label-lower">Projects</div>
+                  <div className="side-project"><i className="project-dot purple"/>Website refresh</div>
+                  <div className="side-project"><i className="project-dot green"/>Product launch</div>
+                  <div className="side-project"><i className="project-dot amber"/>Q4 planning</div>
+                </aside>
+
+                <div className="preview-main">
+                  <div className="preview-topline">
+                    <span>Projects / Website refresh</span>
+                    <span className="preview-members" aria-hidden="true"><i>J</i><i>M</i><i>A</i><b>+</b></span>
+                  </div>
+                  <div className="preview-heading">
+                    <div>
+                      <span className="preview-kicker">Active Sprint</span>
+                      <h3>Website refresh</h3>
+                    </div>
+                    <span className="preview-share">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: 'inline', marginRight: 4 }} aria-hidden="true">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                        <polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+                      </svg>
+                      Share
+                    </span>
+                  </div>
+
+                  <div className="preview-interactive-tabs" role="tablist">
+                    {(['board', 'list', 'milestones'] as const).map((tab) => (
+                      <button key={tab} type="button" role="tab" aria-selected={activeTab === tab}
+                        className={`preview-tab-btn${activeTab === tab ? ' active' : ''}`}
+                        onClick={() => setActiveTab(tab)}>
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeTab === 'board' && (
+                    <div className="preview-columns" role="tabpanel">
+                      <div className="preview-column">
+                        <div className="preview-col-heading"><i className="project-dot purple" aria-hidden="true"/>To Do <span>3</span></div>
+                        <div className="preview-task" onClick={() => setTaskDone(!taskDone)} style={{ cursor: 'pointer' }} role="button" aria-label="Toggle task">
+                          <p>Research competitor flows</p>
+                          <div><span className="task-chip chip-purple">Research</span><i className="mini-avatar" aria-hidden="true"/></div>
+                        </div>
+                        <div className="preview-task">
+                          <p>Gather visual references</p>
+                          <div><span className="task-chip chip-blue">Design</span><i className="mini-avatar mini-1" aria-hidden="true"/></div>
+                        </div>
+                        <div className="preview-add">＋ Add task</div>
+                      </div>
+                      <div className="preview-column">
+                        <div className="preview-col-heading"><i className="project-dot blue" aria-hidden="true"/>In Progress <span>2</span></div>
+                        <div className="preview-task">
+                          <p>Homepage concepts</p>
+                          <div><span className="task-chip chip-blue">Design</span><i className="mini-avatar mini-2" aria-hidden="true"/></div>
+                        </div>
+                        <div className="preview-task">
+                          <p>Write product copy</p>
+                          <div><span className="task-chip chip-purple">Content</span><i className="mini-avatar" aria-hidden="true"/></div>
+                        </div>
+                      </div>
+                      <div className="preview-column">
+                        <div className="preview-col-heading"><i className="project-dot green" aria-hidden="true"/>Done <span>{taskDone ? 3 : 2}</span></div>
+                        {taskDone && (
+                          <div className="preview-task" style={{ borderColor: 'var(--violet)' }}>
+                            <p>Research competitor flows</p>
+                            <div><span className="task-chip chip-green">Done</span><i className="mini-avatar" aria-hidden="true"/></div>
+                          </div>
+                        )}
+                        <div className="preview-task">
+                          <p>Project brief</p>
+                          <div><span className="task-chip chip-green">Strategy</span><i className="mini-avatar mini-1" aria-hidden="true"/></div>
+                        </div>
+                        <div className="preview-task">
+                          <p>Team kickoff sync</p>
+                          <div><span className="task-chip chip-green">Planning</span><i className="mini-avatar mini-2" aria-hidden="true"/></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'list' && (
+                    <div className="preview-interactive-list" role="tabpanel">
+                      {[
+                        { label: 'Homepage concepts & wireframes', chip: 'chip-blue', status: 'In Progress', done: false },
+                        { label: 'Write new product copy', chip: 'chip-purple', status: 'In Progress', done: false },
+                        { label: 'Project brief & scope', chip: 'chip-green', status: 'Done', done: true },
+                        { label: 'Team kickoff sync', chip: 'chip-green', status: 'Done', done: true },
+                      ].map((item, i) => (
+                        <div className="preview-list-row" key={i}>
+                          <div className="preview-list-title">
+                            <input type="checkbox" defaultChecked={item.done} readOnly style={{ accentColor: 'var(--violet)' }} aria-label={item.label}/>
+                            <span style={item.done ? { textDecoration: 'line-through', opacity: .6 } : {}}>{item.label}</span>
+                          </div>
+                          <span className={`task-chip ${item.chip}`}>{item.status}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {activeTab === 'milestones' && (
+                    <div className="preview-interactive-milestones" role="tabpanel">
+                      <div className="preview-milestone-item">
+                        <div className="preview-milestone-head">
+                          <span>Design System & Wireframes</span>
+                          <span style={{ color: 'var(--violet)', fontWeight: 700 }}>85%</span>
+                        </div>
+                        <div className="preview-milestone-bar"><div className="preview-milestone-fill" style={{ width: '85%' }}/></div>
+                        <small style={{ color: 'var(--muted)', fontSize: 10 }}>Due next Friday · 11 of 13 done</small>
+                      </div>
+                      <div className="preview-milestone-item">
+                        <div className="preview-milestone-head">
+                          <span>Responsive Frontend Implementation</span>
+                          <span style={{ color: 'var(--teal)', fontWeight: 700 }}>50%</span>
+                        </div>
+                        <div className="preview-milestone-bar"><div className="preview-milestone-fill" style={{ width: '50%', background: 'var(--teal)' }}/></div>
+                        <small style={{ color: 'var(--muted)', fontSize: 10 }}>Due in 2 weeks · 6 of 12 done</small>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="float-note" aria-live="polite">
+              <span className="float-check" aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div>
+                <b>{taskDone ? 'Task marked done!' : 'Look at us go.'}</b>
+                <small>{taskDone ? 'Moved to Done.' : 'Another task, done.'}</small>
+              </div>
+              <span className="float-spark" aria-hidden="true">✳</span>
+            </div>
+            <div className="hero-star star-one" aria-hidden="true">✳</div>
+            <div className="hero-star star-two" aria-hidden="true">✳</div>
+          </div>
+        </FadeContent>
+      </section>
+
+      {/* Stats strip */}
+      <section className="stats-strip" aria-label="Key metrics">
+        <div className="stats-strip-inner">
+          {[
+            { to: 99.9, decimals: 1, suffix: '%', label: 'Real-time sync reliability' },
+            { to: 50, prefix: '<', suffix: 'ms', label: 'Interaction latency' },
+            { to: 10, suffix: 'k+', label: 'Tasks shipped this month' },
+            { to: 0, suffix: '%', label: 'Bloat & distractions' },
+          ].map((s) => (
+            <div className="stats-item" key={s.label}>
+              <strong><CountUp to={s.to} decimals={s.decimals ?? 0} prefix={s.prefix ?? ''} suffix={s.suffix}/></strong>
+              <span>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="feature-section" id="features">
+        <FadeContent duration={0.5}>
+          <div className="section-intro">
+            <span className="section-kicker">Work in a better flow</span>
+            <h2>All the moving parts.<br/><span>One peaceful place.</span></h2>
+            <p>Everything your team needs to focus, organize projects, and celebrate what gets done.</p>
+          </div>
+        </FadeContent>
+
+        <div className="feature-grid-v2">
+          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+            <div className="landing-spotlight-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M9 3v18M15 3v18"/>
+              </svg>
+            </div>
+            <h3>Board & List views with Instant Undo</h3>
+            <p>Reorder tasks effortlessly with fluid drag-and-drop or switch to a high-density table. Restore anything immediately with one-click Toast Undo.</p>
+          </SpotlightCard>
+
+          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+            <div className="landing-spotlight-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h3>Command Palette at your fingertips</h3>
+            <p>Press <kbd className="palette-kbd">Ctrl+K</kbd> or <kbd className="palette-kbd">/</kbd> anywhere to jump to projects, search tasks instantly, or switch workspaces without lifting your hands.</p>
+          </SpotlightCard>
+
+          <SpotlightCard className="landing-spotlight" spotlightColor="rgba(91,76,245,.14)">
+            <div className="landing-spotlight-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h3>Real-time presence & Live sync</h3>
+            <p>Task changes, comments, and milestones stream across your team over WebSockets with optimistic updates — zero page reloads, always in sync.</p>
+          </SpotlightCard>
+        </div>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="closing-cta" id="how-it-works">
+        <div className="closing-flower" aria-hidden="true">✳</div>
+        <span className="section-kicker" style={{ color: 'rgba(255,255,255,.8)' }}>A fresh start for your team</span>
+        <h2>Ready when<br/>you are.</h2>
+        <p>Bring your next big idea. We&apos;ll help with the flow.</p>
+        <ClickSpark sparkColor="#fff" sparkCount={10}>
+          <Link className="button button-primary" href="/signup">
+            Create your free workspace
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+            </svg>
+          </Link>
+        </ClickSpark>
+        <span className="closing-footnote">No credit card required. Pure momentum.</span>
+      </section>
+
+      {/* Footer */}
+      <footer className="landing-footer">
+        <Link className="brand" href="/"><BrandMark size={22}/> <span>taskflow</span></Link>
+        <span>Crafted for focus, clarity, and team momentum.</span>
+        <Link href="/login">Already have an account? <b>Sign in →</b></Link>
+      </footer>
+    </main>
+  )
 }

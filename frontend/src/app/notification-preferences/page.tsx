@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import { EVENT_TYPE_LABELS, type NotifPreference } from "@/lib/types";
 
@@ -34,9 +34,8 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <>
-      <Header />
-      <main className="wrap" id="main">
+    <AppShell>
+      <div className="wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">YOUR ACCOUNT</span>
@@ -96,7 +95,7 @@ export default function NotificationPreferencesPage() {
             {busy ? "Saving…" : "Save preferences"}
           </button>
         </section>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

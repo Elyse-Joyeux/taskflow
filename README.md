@@ -140,6 +140,10 @@ cd frontend && npm run build && npm start
 - Expose the frontend and API over HTTPS. Configure the hosting platform's
   health check to request `/health` from the API.
 
+## Desktop packaging later
+
+Taskflow is a responsive web app. Layouts target phones, tablets, laptops, and wide screens, and the UI avoids browser-only chrome such as `window.open` popups. Auth uses `localStorage` plus a session cookie, and realtime uses Socket.IO against `NEXT_PUBLIC_API_URL`. A future Windows or Mac wrapper (Tauri or Electron) can load this frontend origin; keep secrets on the API, and consider moving tokens into the OS keychain if you add a native shell. Do not assume a particular browser engine beyond standard web APIs.
+
 ## Main routes
 
 - `/` public landing page; `/login`, `/signup`, `/forgot-password`, and
