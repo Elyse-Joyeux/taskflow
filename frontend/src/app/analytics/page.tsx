@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 
 type Trend   = { day: string; count: number };
@@ -59,9 +59,8 @@ export default function AnalyticsPage() {
   const adherPct   = data ? Math.round((data.adherence.completed_with_due / Math.max(1, data.adherence.total_done)) * 100) : 0;
 
   return (
-    <>
-      <Header />
-      <main className="wrap dashboard-wrap" id="main">
+    <AppShell>
+      <div className="wrap dashboard-wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">REPORTING</span>
@@ -192,7 +191,7 @@ export default function AnalyticsPage() {
             </section>
           </>
         )}
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

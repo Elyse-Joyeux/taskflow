@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import { getSocket } from "@/lib/socket";
 
@@ -262,9 +262,8 @@ export default function CommunityPage() {
   }
 
   return (
-    <>
-      <Header />
-      <main className="community-wrap">
+    <AppShell>
+      <div className="community-wrap">
         <section className="community-hero">
           <div>
             <span className="workspace-overline">YOUR TEAM, IN THE LOOP</span>
@@ -510,7 +509,7 @@ export default function CommunityPage() {
             </div>
           </>
         )}
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

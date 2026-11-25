@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import type { Priority, RecurringTask, User } from "@/lib/types";
 
@@ -75,9 +75,8 @@ export default function RecurringTasksPage() {
   }
 
   return (
-    <>
-      <Header />
-      <main className="wrap" id="main">
+    <AppShell>
+      <div className="wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">
@@ -174,7 +173,7 @@ export default function RecurringTasksPage() {
             </article>
           ))}
         </div>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

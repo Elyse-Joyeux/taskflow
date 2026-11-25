@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import { STATUS_LABEL, type Priority, type Status } from "@/lib/types";
 
@@ -75,9 +75,8 @@ export default function CalendarPage() {
   const selectedTasks = selected ? tasks.filter((t) => t.due_date?.slice(0,10) === selected || t.start_date?.slice(0,10) === selected) : [];
 
   return (
-    <>
-      <Header />
-      <main className="wrap calendar-wrap" id="main">
+    <AppShell>
+      <div className="wrap calendar-wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">SCHEDULE</span>
@@ -164,7 +163,7 @@ export default function CalendarPage() {
         {selected && selectedTasks.length === 0 && (
           <p className="mut" style={{ textAlign: "center", padding: "12px" }}>No tasks on this day.</p>
         )}
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

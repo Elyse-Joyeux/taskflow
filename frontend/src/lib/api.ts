@@ -15,6 +15,7 @@ export function getWorkspaceId() {
 export function setWorkspaceId(id: string) {
   if (typeof window === "undefined") return;
   localStorage.setItem("wid", id);
+  window.dispatchEvent(new CustomEvent("workspace-changed", { detail: id }));
 }
 
 export function clearSession() {

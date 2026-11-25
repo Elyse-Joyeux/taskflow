@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 
 type ActivityEvent = {
@@ -78,9 +78,8 @@ export default function ProjectActivityPage() {
   const pages = Math.ceil(total / LIMIT);
 
   return (
-    <>
-      <Header />
-      <main className="wrap" id="main">
+    <AppShell>
+      <div className="wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">
@@ -116,7 +115,7 @@ export default function ProjectActivityPage() {
                       </>
                     )}
                   </p>
-                  {ev.details && Object.keys(ev.details).length > 0 && ev.details.title && (
+                  {ev.details && Object.keys(ev.details).length > 0 && Boolean(ev.details.title) && (
                     <small className="mut">"{String(ev.details.title)}"</small>
                   )}
                   <time className="activity-time">{new Date(ev.created_at).toLocaleString()}</time>
@@ -133,7 +132,7 @@ export default function ProjectActivityPage() {
             </div>
           )}
         </section>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import type { Milestone } from "@/lib/types";
 
@@ -75,9 +75,8 @@ export default function MilestonesPage() {
   const overdue = (m: Milestone) => m.due_date && !m.completed_at && new Date(`${m.due_date}T00:00:00`) < new Date();
 
   return (
-    <>
-      <Header />
-      <main className="wrap" id="main">
+    <AppShell>
+      <div className="wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">
@@ -177,7 +176,7 @@ export default function MilestonesPage() {
             );
           })}
         </div>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

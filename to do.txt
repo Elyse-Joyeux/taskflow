@@ -1,0 +1,224 @@
+
+Taskflow UX polish plan
+
+Scope is product feel, not new platforms. No Gantt, OAuth, time tracking, sprints, or webhooks. Leave untracked [backend/migrations/004_product_polish.sql](C:\Users\elyse\Documents\work\interns\projects\taskflow\backend\migrations\004_product_polish.sql) out of this work.
+
+Libraries already in [frontend/package.json](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\package.json): framer-motion, @dnd-kit/core + sortable + utilities, sonner.
+
+flowchart LR
+  subgraph chrome [App chrome]
+    Theme[ThemeProvider]
+    Sidebar[AppSidebar]
+    Palette[CommandPalette]
+    Toasts[SonnerToaster]
+  end
+  subgraph surfaces [Surfaces]
+    Board[Project board]
+    List[Project list]
+    Modal[TaskModal]
+    Pages[Projects MyTasks Dashboard]
+  end
+  Theme --> Sidebar
+  Sidebar --> Board
+  Sidebar --> List
+  Palette --> Modal
+  Board --> Modal
+  List --> Modal
+  Board --> Toasts
+  Modal --> Toasts
+
+1. App chrome (UI)
+
+Replace the crowded top nav in [frontend/src/components/Header.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\components\Header.tsx) with an Asana/Linear-style shell:
+
+
+
+
+
+New [frontend/src/components/AppShell.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\components\AppShell.tsx): left sidebar (logo, workspace switcher without window.location.reload, Projects / My tasks / Calendar / Dashboard / Analytics / Search / Community, footer: profile + settings + theme). Slim top bar: search trigger, notifications, account.
+
+
+
+Wrap signed-in pages with AppShell. Keep public landing/auth pages as they are.
+
+
+
+Dark mode: data-theme="light|dark" on <html>, CSS variables in [frontend/src/app/globals.css](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\globals.css), persist in localStorage, inline script in [frontend/src/app/layout.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\layout.tsx) to avoid flash. System option via prefers-color-scheme.
+
+
+
+Keep prefers-reduced-motion (already in globals): skip React Bits / framer when reduced motion is on.
+
+2. Motion and feedback (no React Bits required)
+
+
+
+
+
+Toasts: mount <Toaster /> from Sonner in root layout. Helpers for success/error. Board move and task delete show toast with Undo that PATCHes the previous status or recreates via the existing APIs. Replace window.confirm delete in the board with toast undo (or a small confirm in the modal still for permanent delete).
+
+
+
+dnd-kit board: rewrite drag in [frontend/src/app/projects/[id]/page.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\projects\[id]\page.tsx). Drop HTML5 draggable. Each column is a droppable; cards are useSortable. Drag overlay (ghost card), column highlight, optimistic status PATCH, revert + error toast on failure.
+
+
+
+Framer Motion (built-in, not React Bits): task modal scale/fade; overlay opacity; notification/account popovers; list-item layout animation when cards move; page content opacity/y on first paint.
+
+3. Board + list view
+
+On the project page, add Board | List toggle (query ?view=list so it is shareable).
+
+
+
+
+
+Board: existing 6 columns, dnd-kit as above, skeleton columns while loading.
+
+
+
+List: table of the same tasks (title, status, priority, assignee, due). Row click opens [TaskModal](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\components\TaskModal.tsx). Status dropdown still respects WORKFLOW / allowed_statuses. No backend change.
+
+4. Command palette
+
+New [frontend/src/components/CommandPalette.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\components\CommandPalette.tsx): Ctrl/Cmd+K (and / when not in an input). Actions: jump to routes, switch workspace, toggle theme, focus board search, “New task” focuses the To do composer. Task search reuses existing /api/search (or in-memory board tasks when already on a project). Close on Escape. Framer fade/scale.
+
+5. React Bits — search these names
+
+Copy from reactbits.dev (React + JS/TS + CSS, not the Three.js backgrounds). After you paste a component, I will drop it under frontend/src/components/bits/ and wire it. Do not send Aurora, Particles, Splash Cursor, Hyperspeed, Ballpit — too loud for a work app.
+
+
+
+
+
+
+
+Search on React Bits
+
+
+
+Where it goes
+
+
+
+
+
+Fade Content
+
+
+
+Signed-in page body enter
+
+
+
+
+
+Animated List
+
+
+
+My tasks rows, notification list
+
+
+
+
+
+Spotlight Card
+
+
+
+Project cards on /projects
+
+
+
+
+
+Glare Hover
+
+
+
+Fallback/extra shine on project + task cards if Spotlight Card is heavy
+
+
+
+
+
+Click Spark
+
+
+
+Complete-task / New project / primary buttons
+
+
+
+
+
+Count Up
+
+
+
+Dashboard and projects stat numbers
+
+
+
+
+
+Magnet
+
+
+
+Primary CTAs (New project, Invite)
+
+
+
+
+
+Blur Text or Split Text
+
+
+
+Landing hero headline only (optional)
+
+
+
+
+
+Staggered Menu
+
+
+
+Only if you want a fancier mobile sidebar; otherwise skip
+
+Priority order to search/paste: Fade Content, Animated List, Spotlight Card, Click Spark, Count Up. Magnet / Glare / landing text are extras.
+
+6. Surfaces to touch (consistency)
+
+
+
+
+
+[projects/page.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\projects\page.tsx): skeletons, Spotlight Card, toast on create.
+
+
+
+[my-tasks/page.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\my-tasks\page.tsx): Animated List.
+
+
+
+[dashboard/page.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\app\dashboard\page.tsx): Count Up on stats.
+
+
+
+[TaskModal.tsx](C:\Users\elyse\Documents\work\interns\projects\taskflow\frontend\src\components\TaskModal.tsx): motion + toast on save/delete.
+
+
+
+Calendar, search, community, analytics: AppShell + Fade Content + dark tokens only (no feature rewrite).
+
+7. Out of this pass
+
+Rich markdown, @mentions picker, live presence, notification deep-link to a task (small follow-up if time), Gantt, week calendar drag, OAuth, 2FA, issue keys, timers, sprints, webhooks, custom columns.
+
+Verification
+
+Exercise in the browser: login, switch theme, Cmd+K, open a project, drag a card across columns, undo from toast, toggle list view, open/close task modal, create a project, visit My tasks and Dashboard. Check mobile sidebar + prefers-reduced-motion.

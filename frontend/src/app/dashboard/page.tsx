@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
+import CountUp from "@/components/bits/CountUp";
+import ClickSpark from "@/components/bits/ClickSpark";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 import { STATUS_LABEL, type Status } from "@/lib/types";
 
@@ -39,58 +41,123 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      let workspaceId = getWorkspaceId();
+      if (!workspaceId) {
+        const workspaces = await api<{ id: string }[]>("/api/workspaces");
+        workspaceId = workspaces[0]?.id ?? null;
+        if (workspaceId) setWorkspaceId(workspaceId);
+      }
+      if (!workspaceId) throw new Error("Create or join a workspace to view its dashboard.");
+      setData(await api<Dashboard>(`/api/workspaces/${workspaceId}/dashboard`));
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        let workspaceId = getWorkspaceId();
-        if (!workspaceId) {
-          const workspaces = await api<{ id: string }[]>("/api/workspaces");
-          workspaceId = workspaces[0]?.id ?? null;
-          if (workspaceId) setWorkspaceId(workspaceId);
-        }
-        if (!workspaceId) throw new Error("Create or join a workspace to view its dashboard.");
-        setData(await api<Dashboard>(`/api/workspaces/${workspaceId}/dashboard`));
-      } catch (reason) {
-        setError((reason as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    void load();
-  }, [router, refreshKey]);
+    void loadDashboard();
+
+    const onWorkspaceChanged = () => {
+      void loadDashboard();
+    };
+    window.addEventListener("workspace-changed", onWorkspaceChanged);
+    return () => window.removeEventListener("workspace-changed", onWorkspaceChanged);
+  }, [router, loadDashboard, refreshKey]);
 
   const totalStatus = data?.by_status.reduce((sum, row) => sum + row.count, 0) || 1;
   const totalPriority = data?.by_priority.reduce((sum, row) => sum + row.count, 0) || 1;
 
   return (
-    <>
-      <Header />
-      <main className="wrap dashboard-wrap" id="main">
+    <AppShell>
+      <div className="wrap dashboard-wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">ANALYTICS</span>
             <h1>Workspace dashboard</h1>
             <p>Live counts from your database, not a static mock.</p>
           </div>
-          <Link className="button button-primary" href="/projects">
-            Open projects <span>↗</span>
-          </Link>
+          <ClickSpark sparkColor="#7c6df0">
+            <Link className="button button-primary" href="/projects">
+              Open projects <span>↗</span>
+            </Link>
+          </ClickSpark>
         </div>
-        {error && <div className="dashboard-error" role="alert"><div><b>Dashboard data could not be loaded</b><p>{error}</p></div><button className="button button-primary" onClick={() => setRefreshKey(key => key + 1)}>Try again</button></div>}
-        {loading && <section className="dashboard-loading" role="status" aria-live="polite"><span className="dashboard-spinner"/><b>Loading workspace analytics</b><span>Gathering project and task activity…</span><div className="dashboard-skeletons"><i/><i/><i/><i/></div></section>}
+
+        {error && (
+          <div className="dashboard-error" role="alert">
+            <div>
+              <b>Dashboard data could not be loaded</b>
+              <p>{error}</p>
+            </div>
+            <button className="button button-primary" onClick={() => setRefreshKey((key) => key + 1)}>
+              Try again
+            </button>
+          </div>
+        )}
+
+        {loading && (
+          <section className="dashboard-loading" role="status" aria-live="polite">
+            <span className="dashboard-spinner" />
+            <b>Loading workspace analytics</b>
+            <span>Gathering project and task activity…</span>
+            <div className="dashboard-skeletons">
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+          </section>
+        )}
+
         {data && (
           <>
             <section className="workspace-stats dashboard-stats">
-              <div className="stat-card"><span className="stat-icon">▦</span><div><strong>{data.stats.project_count}</strong><small>Projects</small></div></div>
-              <div className="stat-card"><span className="stat-icon">◷</span><div><strong>{data.stats.open_count}</strong><small>Open tasks</small></div></div>
-              <div className="stat-card"><span className="stat-icon">✓</span><div><strong>{data.stats.completed_this_week}</strong><small>Done this week</small></div></div>
-              <div className="stat-card"><span className="stat-icon">!</span><div><strong>{data.stats.overdue_count}</strong><small>Overdue</small></div></div>
+              <div className="stat-card">
+                <span className="stat-icon">▦</span>
+                <div>
+                  <strong>
+                    <CountUp to={data.stats.project_count} />
+                  </strong>
+                  <small>Projects</small>
+                </div>
+              </div>
+              <div className="stat-card">
+                <span className="stat-icon">◷</span>
+                <div>
+                  <strong>
+                    <CountUp to={data.stats.open_count} />
+                  </strong>
+                  <small>Open tasks</small>
+                </div>
+              </div>
+              <div className="stat-card">
+                <span className="stat-icon">✓</span>
+                <div>
+                  <strong>
+                    <CountUp to={data.stats.completed_this_week} />
+                  </strong>
+                  <small>Done this week</small>
+                </div>
+              </div>
+              <div className="stat-card">
+                <span className="stat-icon">!</span>
+                <div>
+                  <strong>
+                    <CountUp to={data.stats.overdue_count} />
+                  </strong>
+                  <small>Overdue</small>
+                </div>
+              </div>
             </section>
             <div className="dashboard-grid">
               <section className="settings-card">
@@ -101,8 +168,12 @@ export default function DashboardPage() {
                     return (
                       <div className={`chart-row chart-status-${status}`} key={status} role="listitem">
                         <span>{STATUS_LABEL[status]}</span>
-                        <div className="chart-bar" aria-hidden="true"><i style={{ width: `${Math.max(4, (count / totalStatus) * 100)}%` }} /></div>
-                        <b>{count}</b>
+                        <div className="chart-bar" aria-hidden="true">
+                          <i style={{ width: `${Math.max(4, (count / totalStatus) * 100)}%` }} />
+                        </div>
+                        <b>
+                          <CountUp to={count} />
+                        </b>
                       </div>
                     );
                   })}
@@ -115,14 +186,22 @@ export default function DashboardPage() {
                     const count = data.by_priority.find((row) => row.priority === priority)?.count ?? 0;
                     return (
                       <div className={`chart-row chart-priority-${priority}`} key={priority} role="listitem">
-                        <span className="priority-badge" style={{ textTransform: "capitalize" }}>{priority}</span>
-                        <div className="chart-bar" aria-hidden="true"><i style={{ width: `${Math.max(4, (count / totalPriority) * 100)}%` }} /></div>
-                        <b>{count}</b>
+                        <span className="priority-badge" style={{ textTransform: "capitalize" }}>
+                          {priority}
+                        </span>
+                        <div className="chart-bar" aria-hidden="true">
+                          <i style={{ width: `${Math.max(4, (count / totalPriority) * 100)}%` }} />
+                        </div>
+                        <b>
+                          <CountUp to={count} />
+                        </b>
                       </div>
                     );
                   })}
                 </div>
-                <p className="field-help">Remaining estimated effort: {Number(data.stats.remaining_hours || 0).toFixed(1)} hours</p>
+                <p className="field-help">
+                  Remaining estimated effort: {Number(data.stats.remaining_hours || 0).toFixed(1)} hours
+                </p>
               </section>
             </div>
             <section className="settings-card">
@@ -144,8 +223,17 @@ export default function DashboardPage() {
             </section>
           </>
         )}
-        {!loading && !error && !data && <section className="dashboard-empty"><span>▦</span><h2>No workspace data yet</h2><p>Create a workspace or join a team to see project analytics here.</p><Link className="button button-primary" href="/workspaces">Manage workspaces <span>↗</span></Link></section>}
-      </main>
-    </>
+        {!loading && !error && !data && (
+          <section className="dashboard-empty">
+            <span>▦</span>
+            <h2>No workspace data yet</h2>
+            <p>Create a workspace or join a team to see project analytics here.</p>
+            <Link className="button button-primary" href="/workspaces">
+              Manage workspaces <span>↗</span>
+            </Link>
+          </section>
+        )}
+      </div>
+    </AppShell>
   );
 }

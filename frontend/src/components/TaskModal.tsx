@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
 import { api, getToken } from "@/lib/api";
 import { getSocket } from "@/lib/socket";
 import { STATUS_LABEL, WORKFLOW } from "@/lib/types";
@@ -80,6 +82,7 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
   const [tags, setTags] = useState((task.tags ?? []).join(", "));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const reduceMotion = useReducedMotion();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,6 +112,14 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
     return () => { s.off("comment:new", onComment); };
   }, [task.id, myUid]);
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   // Load activity when tab is opened
   useEffect(() => {
     if (tab !== "comments") return;
@@ -119,8 +130,12 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
 
   async function patch(fields: Partial<Task>) {
     setSaving(true); setError("");
-    try { onUpdate(await api<Task>(`/api/tasks/${task.id}`, { method: "PATCH", body: JSON.stringify(fields) })); }
-    catch (e) { setError((e as Error).message); }
+    try {
+      const updated = await api<Task>(`/api/tasks/${task.id}`, { method: "PATCH", body: JSON.stringify(fields) });
+      onUpdate(updated);
+      toast.success("Task updated");
+    }
+    catch (e) { setError((e as Error).message); toast.error((e as Error).message); }
     finally { setSaving(false); }
   }
 
@@ -240,8 +255,13 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
   // ── Delete task ───────────────────────────────────────────────
   async function remove() {
     if (!confirm("Delete this task? This also removes its checklist and comments.")) return;
-    try { await api(`/api/tasks/${task.id}`, { method: "DELETE" }); onDelete(task.id); onClose(); }
-    catch (e) { setError((e as Error).message); }
+    try {
+      await api(`/api/tasks/${task.id}`, { method: "DELETE" });
+      onDelete(task.id);
+      onClose();
+      toast.success("Task deleted");
+    }
+    catch (e) { setError((e as Error).message); toast.error((e as Error).message); }
   }
 
   const checkDone = checklist.filter((i) => i.completed).length;
@@ -257,13 +277,24 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
   ];
 
   return (
-    <div className="ov" onClick={onClose}>
-      <section
+    <motion.div
+      className="ov"
+      onClick={onClose}
+      initial={reduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={reduceMotion ? undefined : { opacity: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.15 }}
+    >
+      <motion.section
         className="modal task-modal task-modal-full"
         role="dialog"
         aria-modal="true"
         aria-label="Task details"
         onClick={(e) => e.stopPropagation()}
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={reduceMotion ? undefined : { opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
       >
         {/* ── Header ── */}
         <div className="task-modal-top">
@@ -277,7 +308,7 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
             >
               {watching ? "👁 Watching" : "👁 Watch"}
             </button>
-            <span className="save-indicator">{saving ? "Saving…" : "Auto-saved"}</span>
+            <span className="save-indicator" aria-live="polite">{saving ? "Saving…" : ""}</span>
             <button className="icon-button" onClick={onClose} aria-label="Close task details">×</button>
           </div>
         </div>
@@ -619,7 +650,7 @@ export default function TaskModal({ task, members, onClose, onUpdate, onDelete }
           <button className="delete-task-button" onClick={remove}>Delete task</button>
           <button className="button button-primary" onClick={onClose}>Done</button>
         </div>
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }

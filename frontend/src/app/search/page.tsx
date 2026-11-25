@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import {
   STATUS_LABEL,
@@ -55,9 +55,8 @@ export default function SearchPage() {
   }, []);
 
   return (
-    <>
-      <Header />
-      <main className="wrap search-wrap" id="main">
+    <AppShell>
+      <div className="wrap search-wrap" id="main">
         <section className="search-intro">
           <span className="workspace-overline">FIND THE WORK</span>
           <h1>Search tasks</h1>
@@ -169,7 +168,7 @@ export default function SearchPage() {
             </Link>
           ))}
         </section>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }

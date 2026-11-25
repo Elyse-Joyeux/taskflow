@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 import {
   ACTION_TYPE_LABELS,
@@ -103,9 +103,8 @@ export default function AutomationsPage() {
   }
 
   return (
-    <>
-      <Header />
-      <main className="wrap" id="main">
+    <AppShell>
+      <div className="wrap" id="main">
         <div className="workspace-intro">
           <div>
             <span className="workspace-overline">WORKSPACE AUTOMATIONS</span>
@@ -242,7 +241,7 @@ export default function AutomationsPage() {
             </article>
           ))}
         </div>
-      </main>
-    </>
+      </div>
+    </AppShell>
   );
 }
