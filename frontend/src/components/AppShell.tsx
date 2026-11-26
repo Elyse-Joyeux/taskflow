@@ -7,6 +7,7 @@ import {
   Activity,
   Bell,
   CalendarDays,
+  Check,
   CheckCheck,
   ChevronDown,
   FolderKanban,
@@ -83,23 +84,23 @@ function timeAgo(value: string) {
 
 function BrandMark() {
   return (
-    <span className="brand-mark" aria-hidden="true">
-      <span /><span /><span /><span />
+    <span className="taskflow-mark" aria-hidden="true">
+      <Check />
     </span>
   );
 }
 
 const mainLinks = [
-  { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/my-tasks", label: "My tasks", icon: CheckCheck },
+  { href: "/community", label: "Team updates", icon: MessageSquareText },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/analytics", label: "Insights", icon: Activity },
+  { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/analytics", label: "Analytics", icon: Activity },
   { href: "/search", label: "Search", icon: Search },
 ];
 
 const teamLinks = [
-  { href: "/community", label: "Team updates", icon: UsersRound },
   { href: "/automations", label: "Automations", icon: Workflow },
 ];
 

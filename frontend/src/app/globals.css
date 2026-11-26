@@ -2271,6 +2271,8 @@ body {
 }
 
 .taskflow-brand .brand-mark span { border-radius: 4px; }
+.taskflow-mark { display: grid; width: 1.75rem; height: 1.75rem; flex: none; place-items: center; border-radius: 0.55rem; background: var(--primary); color: var(--primary-foreground); }
+.taskflow-mark svg { width: 1.1rem; height: 1.1rem; stroke-width: 2.6; }
 
 .taskflow-workspace-switcher,
 .taskflow-theme-row {
@@ -2400,6 +2402,14 @@ body {
 .stat-card { min-height: 6.8rem; border-color: var(--border); border-radius: 0.85rem; background: var(--card); box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 4%, transparent); }
 .stat-card strong { color: var(--foreground); font-family: var(--font-head); font-size: 1.8rem; letter-spacing: -0.06em; }
 .stat-card small { color: var(--muted-foreground); }
+.dashboard-stat-card { min-height: 6.45rem; }
+.dashboard-stat-content { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1rem 1.2rem; }
+.dashboard-stat-content small { font-size: 0.75rem; }
+.dashboard-stat-content strong { font-size: 1.85rem; line-height: 1.15; }
+.dashboard-focus-card { margin-top: 1rem; border-color: color-mix(in oklch, var(--primary) 17%, var(--border)); background: color-mix(in oklch, var(--primary) 7%, var(--card)); box-shadow: none; }
+.dashboard-focus-card [data-slot="card-content"] { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.1rem; }
+.dashboard-focus-card strong { color: var(--accent-foreground); font-size: 0.9rem; }
+.dashboard-focus-card p { margin: 0.15rem 0 0; color: var(--muted-foreground); font-size: 0.75rem; }
 .section-heading { margin: 2.25rem 0 1rem; }
 .section-heading h2 { font-size: 1.05rem; font-weight: 670; letter-spacing: -0.025em; }
 .grid { gap: 0.9rem; }
@@ -2481,6 +2491,7 @@ body {
   .workspace-create { width: 100%; }
   .workspace-create input { width: 100%; }
   .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-focus-card [data-slot="card-content"] { align-items: flex-start; flex-direction: column; }
   .task-filter-bar { flex-wrap: nowrap; overflow-x: auto; padding: 0.15rem 0.1rem 0.4rem; }
   .task-filter-bar [data-slot="toggle-group-item"] { flex: none; }
   .assigned-task-card .assigned-task { flex-wrap: wrap; }

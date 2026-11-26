@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity, AlertTriangle, ArrowUpRight, CheckCheck, FolderKanban, ListTodo } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, FolderKanban } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 import { STATUS_LABEL, type Status } from "@/lib/types";
@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import CountUp from "@/components/bits/CountUp";
 
  type Dashboard = {
   stats: {
@@ -119,19 +120,31 @@ export default function DashboardPage() {
           <>
             <section className="workspace-stats dashboard-stats" aria-label="Workspace metrics">
               {[
-                { label: "Projects", value: data.stats.project_count, icon: FolderKanban, tone: "bg-primary/10 text-primary" },
-                { label: "Open tasks", value: data.stats.open_count, icon: ListTodo, tone: "bg-secondary text-secondary-foreground" },
-                { label: "Completed this week", value: data.stats.completed_this_week, icon: CheckCheck, tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-                { label: "Overdue", value: data.stats.overdue_count, icon: AlertTriangle, tone: "bg-destructive/10 text-destructive" },
-              ].map(({ label, value, icon: Icon, tone }) => (
-                <Card className="stat-card" key={label}>
-                  <CardContent className="flex items-center gap-4 p-5">
-                    <span className={`grid size-10 place-items-center rounded-xl ${tone}`}><Icon aria-hidden="true" /></span>
-                    <div><strong>{value}</strong><small>{label}</small></div>
+                { label: "Total tasks", value: data.stats.task_count },
+                { label: "In progress", value: data.stats.open_count },
+                { label: "Completed", value: data.stats.done_count },
+                { label: "Overdue", value: data.stats.overdue_count },
+              ].map(({ label, value }) => (
+                <Card className="stat-card dashboard-stat-card" key={label}>
+                  <CardContent className="dashboard-stat-content">
+                    <small>{label}</small>
+                    <strong><CountUp to={value} /></strong>
                   </CardContent>
                 </Card>
               ))}
             </section>
+
+            <Card className="dashboard-focus-card">
+              <CardContent>
+                <div>
+                  <strong>A little focus goes a long way.</strong>
+                  <p>Keep your priorities clear and make steady progress with your team.</p>
+                </div>
+                <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/my-tasks">
+                  View my tasks <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
+                </Link>
+              </CardContent>
+            </Card>
 
             <div className="dashboard-grid">
               <Card>
