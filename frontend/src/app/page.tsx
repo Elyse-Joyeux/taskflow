@@ -90,7 +90,17 @@ export default function Home() {
         {/* Hero visual */}
         <div className="hero-visual" role="group" aria-label="Interactive Taskflow product preview">
           <div className="hero-shard-layer" aria-hidden="true">
-            <AeroShards enabled={false} style={{ width: '100%', height: '100%' }} />
+            <AeroShards
+              enabled
+              placement="right"
+              count={280}
+              speed={0.55}
+              dpr={0.65}
+              mouseInteraction={false}
+              pulseOnClick={false}
+              holdToGather={false}
+              style={{ width: '100%', height: '100%' }}
+            />
           </div>
           <div className="board-window">
               <div className="window-top">
