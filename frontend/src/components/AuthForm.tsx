@@ -202,7 +202,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               holdToGather
               dpr={1.25}
               style={{ width: "100%", height: "100%" }}
-              onError={() => setShardsEnabled(false)}
             />
           </div>
         )}

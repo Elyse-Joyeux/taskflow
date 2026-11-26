@@ -985,7 +985,7 @@ export default function AeroShards({
   dpr = 2,
   className = '',
   style,
-  onError
+  onError = undefined
 }) {
   const containerRef = useRef(null);
   const onErrorRef = useRef(onError);
@@ -2033,12 +2033,8 @@ export default function AeroShards({
         });
       };
 
-      let firstFrameLogged = false;
       const tick = now => {
         raf = requestAnimationFrame(tick);
-        if (!firstFrameLogged) {
-          firstFrameLogged = true;
-            }
         if (!state.visible || document.hidden) {
           state.last = now;
           return;
@@ -2249,5 +2245,13 @@ export default function AeroShards({
     };
   }, []);
 
-  return <div ref={containerRef} className={[ROOT, className].filter(Boolean).join(' ')} style={style} />;
+  return (
+    <div ref={containerRef} className={[ROOT, className].filter(Boolean).join(' ')} style={style}>
+      <div className="aero-shards-fallback" aria-hidden="true">
+        <span className="aero-shards-fallback__facet aero-shards-fallback__facet--one" />
+        <span className="aero-shards-fallback__facet aero-shards-fallback__facet--two" />
+        <span className="aero-shards-fallback__facet aero-shards-fallback__facet--three" />
+      </div>
+    </div>
+  );
 }
