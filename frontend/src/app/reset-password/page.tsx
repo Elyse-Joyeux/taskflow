@@ -2,7 +2,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowUpRight, KeyRound, LockKeyhole } from "lucide-react";
 import { api } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [token, setToken] = useState("");
@@ -36,7 +41,7 @@ export default function ResetPasswordPage() {
     }
   }
   return (
-    <main className="auth-shell">
+    <main id="content" className="auth-shell">
       <section className="auth-story">
         <Link className="brand auth-brand" href="/">
           <span className="brand-mark">
@@ -78,61 +83,37 @@ export default function ResetPasswordPage() {
         </div>
         <div className="auth-form-wrap">
           <div className="auth-eyebrow">
-            <span>✦</span> SET A NEW PASSWORD
+            <KeyRound aria-hidden="true" size={13} /> SET A NEW PASSWORD
           </div>
           <h2>Make it a good one.</h2>
           <p className="auth-subtitle">
             Choose a new password with at least 8 characters.
           </p>
           {!token ? (
-            <p className="auth-error" role="alert">
-              This reset link is missing or invalid. Request a fresh link to
-              continue.
-            </p>
+            <Alert variant="destructive" role="alert"><AlertDescription>This reset link is missing or invalid. Request a fresh link to continue.</AlertDescription></Alert>
           ) : (
             <form className="auth-form" onSubmit={submit}>
-              <label>
-                New password
-                <div className="input-shell">
-                  <span className="input-icon">⌑</span>
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 8 characters"
-                  />
-                </div>
-              </label>
-              <label>
-                Confirm new password
-                <div className="input-shell">
-                  <span className="input-icon">⌑</span>
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    placeholder="Enter it one more time"
-                  />
-                </div>
-              </label>
-              {error && (
-                <p className="auth-error" role="alert">
-                  {error}
-                </p>
-              )}
-              <button
-                className="button button-primary auth-submit"
-                disabled={busy}
-              >
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="reset-password">New password</FieldLabel>
+                  <div className="relative">
+                    <LockKeyhole aria-hidden="true" className="auth-input-icon" />
+                    <Input id="reset-password" className="auth-shadcn-input" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 8 characters" />
+                  </div>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="reset-password-confirm">Confirm new password</FieldLabel>
+                  <div className="relative">
+                    <LockKeyhole aria-hidden="true" className="auth-input-icon" />
+                    <Input id="reset-password-confirm" className="auth-shadcn-input" type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={(event) => setConfirm(event.target.value)} placeholder="Enter it one more time" />
+                  </div>
+                </Field>
+              </FieldGroup>
+              {error && <Alert variant="destructive" role="alert"><AlertDescription>{error}</AlertDescription></Alert>}
+              <Button className="auth-submit w-full" size="lg" disabled={busy}>
                 {busy ? "Updating password…" : "Reset password"}
-                <span>↗</span>
-              </button>
+                <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
+              </Button>
             </form>
           )}
           <div className="auth-switch">
@@ -140,8 +121,8 @@ export default function ResetPasswordPage() {
           </div>
         </div>
         <footer className="auth-footer">
-          <Link href="/">← Back to Taskflow</Link>
-          <span>© 2026 Taskflow</span>
+          <Link href="/"><ArrowLeft aria-hidden="true" size={15} /> Back to Taskflow</Link>
+          <span className="site-copyright">© 2026 Taskflow Inc. All rights reserved.</span>
         </footer>
       </section>
     </main>

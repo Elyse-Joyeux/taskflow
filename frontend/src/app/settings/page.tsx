@@ -3,6 +3,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 type Account = {
   id: string;
@@ -95,22 +100,23 @@ export default function SettingsPage() {
         </div>
         <div className="settings-layout">
           <nav className="settings-nav">
-            <a className="active" href="#profile">
-              Personal details
-            </a>
-            <a href="#security">Password & security</a>
-            <a href="/notification-preferences">Notification preferences ↗</a>
-            <a href="/profile">Profile preview ↗</a>
+              <a className="active" href="#profile">
+                Personal details
+              </a>
+              <a href="#security">Password &amp; security</a>
+              <a href="/notification-preferences">Notification preferences ↗</a>
+              <a href="/profile">Profile preview ↗</a>
           </nav>
           <div className="settings-content">
-            <section className="settings-card" id="profile">
-              <div className="settings-card-heading">
+            <Card className="settings-card" id="profile">
+              <CardHeader className="settings-card-heading">
                 <span className="settings-icon">◉</span>
                 <div>
                   <h2>Personal details</h2>
                   <p>Update the name and email your teammates see.</p>
                 </div>
-              </div>
+              </CardHeader>
+              <CardContent>
               <form className="settings-form" onSubmit={saveProfile}>
                 <div className="profile-photo-row">
                   <span className="profile-avatar">
@@ -126,98 +132,54 @@ export default function SettingsPage() {
                     </small>
                   </div>
                 </div>
-                <label className="field-label">
-                  Display name
-                  <input
-                    required
-                    maxLength={40}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </label>
-                <label className="field-label">
-                  Email address
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </label>
-                {email !== account?.email && (
-                  <label className="field-label">
-                    Current password
-                    <input
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                      value={profilePassword}
-                      onChange={(e) => setProfilePassword(e.target.value)}
-                    />
-                    <small className="field-help">
-                      Confirm your password to change your email.
-                    </small>
-                  </label>
-                )}
-                <button
-                  className="button button-primary settings-save"
-                  disabled={busy}
-                >
-                  {busy ? "Saving…" : "Save changes"}
-                </button>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="profile-name">Display name</FieldLabel>
+                    <Input id="profile-name" required maxLength={40} value={name} onChange={(event) => setName(event.target.value)} />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="profile-email">Email address</FieldLabel>
+                    <Input id="profile-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
+                  </Field>
+                  {email !== account?.email && (
+                    <Field>
+                      <FieldLabel htmlFor="profile-current-password">Current password</FieldLabel>
+                      <Input id="profile-current-password" type="password" autoComplete="current-password" required value={profilePassword} onChange={(event) => setProfilePassword(event.target.value)} />
+                      <small className="field-help">Confirm your password to change your email.</small>
+                    </Field>
+                  )}
+                </FieldGroup>
+                <Button type="submit" className="settings-save" disabled={busy}>{busy ? "Saving…" : "Save changes"}</Button>
               </form>
-            </section>
-            <section className="settings-card" id="security">
-              <div className="settings-card-heading">
+              </CardContent>
+            </Card>
+            <Card className="settings-card" id="security">
+              <CardHeader className="settings-card-heading">
                 <span className="settings-icon security-icon">⌑</span>
                 <div>
                   <h2>Password & security</h2>
                   <p>Choose a strong password you don’t use elsewhere.</p>
                 </div>
-              </div>
+              </CardHeader>
+              <CardContent>
               <form className="settings-form" onSubmit={savePassword}>
-                <label className="field-label">
-                  Current password
-                  <input
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
-                </label>
-                <label className="field-label">
-                  New password
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                  <small className="field-help">
-                    Use at least 8 characters.
-                  </small>
-                </label>
-                <button
-                  className="button button-primary settings-save"
-                  disabled={busy}
-                >
-                  {busy ? "Updating…" : "Update password"}
-                </button>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="current-password">Current password</FieldLabel>
+                    <Input id="current-password" type="password" autoComplete="current-password" required value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="new-password">New password</FieldLabel>
+                    <Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+                    <small className="field-help">Use at least 8 characters.</small>
+                  </Field>
+                </FieldGroup>
+                <Button type="submit" className="settings-save" disabled={busy}>{busy ? "Updating…" : "Update password"}</Button>
               </form>
-            </section>
-            {error && (
-              <p className="auth-error" role="alert">
-                {error}
-              </p>
-            )}
-            {success && (
-              <p className="settings-success" role="status">
-                ✓ {success}
-              </p>
-            )}
+              </CardContent>
+            </Card>
+            {error && <Alert variant="destructive" role="alert"><AlertDescription>{error}</AlertDescription></Alert>}
+            {success && <Alert role="status"><AlertDescription>{success}</AlertDescription></Alert>}
           </div>
         </div>
       </div>

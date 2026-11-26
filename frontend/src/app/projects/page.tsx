@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUpRight, FolderKanban, ListTodo, Plus } from "lucide-react";
 import { toast } from "sonner";
 import AppShell from "@/components/AppShell";
-import SpotlightCard from "@/components/bits/SpotlightCard";
-import ClickSpark from "@/components/bits/ClickSpark";
-import CountUp from "@/components/bits/CountUp";
 import { api, getName, getToken, getWorkspaceId } from "@/lib/api";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type Project = { id: string; name: string; task_count: number };
+ type Project = { id: string; name: string; task_count: number };
 
 export default function Projects() {
   const router = useRouter();
@@ -27,7 +34,7 @@ export default function Projects() {
         setList(items);
         setError("");
       })
-      .catch((e) => setError(e.message))
+      .catch((reason) => setError(reason.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,15 +45,12 @@ export default function Projects() {
       return;
     }
     loadProjects();
-
-    const onWorkspaceChanged = () => {
-      loadProjects();
-    };
-    window.addEventListener("workspace-changed", onWorkspaceChanged);
-    return () => window.removeEventListener("workspace-changed", onWorkspaceChanged);
+    window.addEventListener("workspace-changed", loadProjects);
+    return () => window.removeEventListener("workspace-changed", loadProjects);
   }, [router, loadProjects]);
 
-  async function create() {
+  async function create(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const trimmed = projectName.trim();
     if (!trimmed) return;
     setError("");
@@ -56,12 +60,12 @@ export default function Projects() {
         method: "POST",
         body: JSON.stringify({ name: trimmed, workspace_id: getWorkspaceId() }),
       });
-      toast.success(`Project "${project.name}" created!`);
-      router.push("/projects/" + project.id);
-    } catch (e) {
-      const msg = (e as Error).message;
-      setError(msg);
-      toast.error(msg);
+      toast.success(`Project “${project.name}” created`);
+      router.push(`/projects/${project.id}`);
+    } catch (reason) {
+      const message = (reason as Error).message;
+      setError(message);
+      toast.error(message);
     } finally {
       setCreating(false);
     }
@@ -75,118 +79,98 @@ export default function Projects() {
         <section className="workspace-intro">
           <div>
             <span className="workspace-overline">YOUR WORKSPACE</span>
-            <h1>
-              {userName
-                ? `Good to see you, ${userName.split(" ")[0]}.`
-                : "Welcome to your workspace."}
-            </h1>
+            <h1>{userName ? `Good to see you, ${userName.split(" ")[0]}.` : "Welcome to your workspace."}</h1>
             <p>A little progress, every day. What are we working on?</p>
           </div>
-          <div className="workspace-create">
-            <input
-              aria-label="Project name"
-              placeholder="Name your next project"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && create()}
-            />
-            <ClickSpark sparkColor="#7c6df0">
-              <button className="button button-primary" onClick={create} disabled={creating}>
-                {creating ? "Creating…" : "New project"}
-              </button>
-            </ClickSpark>
-          </div>
+          <form className="workspace-create" onSubmit={create}>
+            <FieldGroup className="min-w-0 flex-1">
+              <Field>
+                <FieldLabel className="sr-only" htmlFor="new-project-name">Project name</FieldLabel>
+                <Input
+                  id="new-project-name"
+                  placeholder="Name your next project"
+                  value={projectName}
+                  onChange={(event) => setProjectName(event.target.value)}
+                  maxLength={80}
+                />
+              </Field>
+            </FieldGroup>
+            <Button type="submit" disabled={creating || !projectName.trim()}>
+              <Plus aria-hidden="true" data-icon="inline-start" />
+              {creating ? "Creating…" : "New project"}
+            </Button>
+          </form>
         </section>
 
         {error && (
-          <div className="err" role="alert">
-            {error}
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Something needs attention</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
-        <section className="workspace-stats">
-          <div className="stat-card">
-            <span className="stat-icon">▦</span>
-            <div>
-              <strong>
-                <CountUp to={list.length} />
-              </strong>
-              <small>Active projects</small>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">✓</span>
-            <div>
-              <strong>
-                <CountUp to={totalTasks} />
-              </strong>
-              <small>Tasks in motion</small>
-            </div>
-          </div>
-          <div className="stat-card">
-            <span className="stat-icon">✳</span>
-            <div>
-              <strong>Good</strong>
-              <small>Time to make progress</small>
-            </div>
-          </div>
+        <section className="workspace-stats" aria-label="Workspace overview">
+          <Card className="stat-card">
+            <CardContent className="flex items-center gap-4 p-5">
+              <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><FolderKanban aria-hidden="true" /></span>
+              <div><strong>{list.length}</strong><small>Projects in workspace</small></div>
+            </CardContent>
+          </Card>
+          <Card className="stat-card">
+            <CardContent className="flex items-center gap-4 p-5">
+              <span className="grid size-10 place-items-center rounded-xl bg-secondary text-secondary-foreground"><ListTodo aria-hidden="true" /></span>
+              <div><strong>{totalTasks}</strong><small>Tasks across projects</small></div>
+            </CardContent>
+          </Card>
         </section>
 
         <div className="section-heading">
-          <h2>Your projects</h2>
-          <span>
-            {list.length} {list.length === 1 ? "project" : "projects"}
-          </span>
+          <div><h2>Your projects</h2><p className="text-sm text-muted-foreground">A focused view of the work your team is moving forward.</p></div>
+          <Badge variant="secondary">{list.length} {list.length === 1 ? "project" : "projects"}</Badge>
         </div>
 
-        {/* Skeletons while loading */}
         {loading && (
           <div className="grid">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="skeleton-shimmer skeleton-project-card" />
+            {[1, 2, 3].map((item) => (
+              <Card key={item} className="min-h-40">
+                <CardHeader><Skeleton className="h-5 w-2/3" /><Skeleton className="h-4 w-1/3" /></CardHeader>
+                <CardContent><Skeleton className="h-4 w-full" /></CardContent>
+              </Card>
             ))}
           </div>
         )}
 
-        {/* Empty state */}
-        {!loading && list.length === 0 && (
-          <section className="empty-state">
-            <div className="empty-illustration">✳</div>
-            <h3>A good idea starts somewhere.</h3>
-            <p>Create your first project and give your team a place to get things moving.</p>
-            <button
-              className="p"
-              style={{ padding: "10px 14px" }}
-              onClick={() => document.querySelector<HTMLInputElement>(".workspace-create input")?.focus()}
-            >
-              ＋ Create a project
-            </button>
-          </section>
+        {!loading && list.length === 0 && !error && (
+          <Empty className="rounded-2xl border border-dashed bg-card px-6 py-16">
+            <EmptyHeader>
+              <EmptyMedia variant="icon"><FolderKanban aria-hidden="true" /></EmptyMedia>
+              <EmptyTitle>You don&apos;t have any projects yet</EmptyTitle>
+              <EmptyDescription>Create a project to give your team a clear place to organize the work.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button variant="outline" onClick={() => document.getElementById("new-project-name")?.focus()}>
+                <Plus aria-hidden="true" data-icon="inline-start" />Name your first project
+              </Button>
+            </EmptyContent>
+          </Empty>
         )}
 
-        {/* Project grid with SpotlightCard */}
         {!loading && list.length > 0 && (
           <div className="grid">
-            {list.map((project, i) => (
-              <SpotlightCard
-                key={project.id}
-                className="pc"
-                spotlightColor="rgba(124, 109, 240, 0.22)"
-                onClick={() => router.push("/projects/" + project.id)}
-              >
-                <div className="project-card-top">
-                  <span className="project-card-icon">{["▦", "✳", "◈"][i % 3]}</span>
-                  <span className="project-more">•••</span>
-                </div>
-                <b>{project.name}</b>
-                <p className="mut">A shared space for your team’s next steps.</p>
-                <div className="project-card-footer">
-                  <span>
-                    {project.task_count} {project.task_count === 1 ? "task" : "tasks"}
-                  </span>
-                  <span className="project-card-open">Open</span>
-                </div>
-              </SpotlightCard>
+            {list.map((project) => (
+              <Link key={project.id} href={`/projects/${project.id}`} className="project-card-link">
+                <Card className="pc h-full">
+                  <CardHeader>
+                    <CardTitle>{project.name}</CardTitle>
+                    <CardDescription>Project workspace</CardDescription>
+                    <CardAction><ArrowUpRight aria-hidden="true" className="size-4 text-muted-foreground transition-colors group-hover:text-primary" /></CardAction>
+                  </CardHeader>
+                  <CardContent className="project-card-footer">
+                    <Badge variant="secondary">{project.task_count} {project.task_count === 1 ? "task" : "tasks"}</Badge>
+                    <span className="project-card-open">Open project</span>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

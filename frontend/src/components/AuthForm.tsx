@@ -4,10 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { api, setWorkspaceId } from "@/lib/api";
+import AeroShards from "@/components/AeroShards";
 import { useTheme } from "@/components/ThemeProvider";
-import ClickSpark from "@/components/bits/ClickSpark";
 
 function BrandMark() {
   return (
@@ -17,52 +22,6 @@ function BrandMark() {
       <span />
       <span />
     </span>
-  );
-}
-
-// Clean inline SVG Icons (no AI generated icons)
-function MailIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-      <polyline points="22,6 12,13 2,6" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
   );
 }
 
@@ -76,8 +35,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-
-  const showDemo = !isSignup && process.env.NEXT_PUBLIC_ENABLE_DEMO === "true";
 
   useEffect(() => {
     if (!isSignup && new URLSearchParams(window.location.search).get("passwordReset") === "1") {
@@ -148,25 +105,40 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const strength = getPasswordStrength();
 
   return (
-    <main className="auth-shell">
+    <main id="content" className="auth-shell">
       {/* Top Floating Controls */}
       <div className="auth-floating-bar">
         <Link className="auth-back-home" href="/">
-          ← Back to Taskflow
+          <ArrowLeft aria-hidden="true" size={15} />
+          <span>Back to Taskflow</span>
         </Link>
-        <button
-          className="auth-theme-toggle-btn"
+        <Button
+          variant="outline"
+          size="sm"
           type="button"
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           title="Toggle light/dark theme"
           aria-label="Toggle theme"
         >
           {resolvedTheme === "dark" ? "Light" : "Dark"}
-        </button>
+        </Button>
       </div>
 
       {/* Left Story Section */}
       <section className="auth-story">
+        <div className="auth-shard-layer" aria-hidden="true">
+          <AeroShards
+            enabled
+            placement="right"
+            count={420}
+            speed={0.45}
+            dpr={1}
+            mouseInteraction={false}
+            pulseOnClick={false}
+            holdToGather={false}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
         <Link className="brand auth-brand" href="/">
           <BrandMark />
           <span>taskflow</span>
@@ -197,44 +169,32 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
               : "Pick up right where your team left off. Every task, update, and discussion in sync."}
           </p>
 
-          {/* Interactive Preview Card */}
-          <div className="story-board">
+          <div className="story-board" role="group" aria-label="Example launch project board">
             <div className="story-board-head">
               <span className="mac-lights" aria-hidden="true"><i /><i /><i /></span>
-              <span>PROJECT IN MOTION</span>
-              <span>
-                Q4 PRODUCT ROADMAP <b>▾</b>
-              </span>
+              <span>SAMPLE PROJECT</span>
+              <span>LAUNCH ROADMAP</span>
             </div>
             <div className="story-item">
-              <span className="story-check checked">✓</span>
-              <span>Refactor Kanban drag & drop</span>
-              <small>DONE</small>
+              <span>Define the launch brief</span>
+              <small className="done">DONE</small>
             </div>
             <div className="story-item">
-              <span className="story-check underway">↗</span>
-              <span>Add Command Palette & Search</span>
-              <small>IN PROGRESS</small>
+              <span>Review the sprint plan</span>
+              <small className="in-progress">IN PROGRESS</small>
             </div>
             <div className="story-item">
-              <span className="story-check">○</span>
-              <span>Launch high contrast dark theme</span>
+              <span>Share the launch checklist</span>
               <small>UP NEXT</small>
             </div>
             <div className="story-board-foot">
-              <div className="avatar-stack">
-                <i>J</i>
-                <i>M</i>
-                <i>A</i>
-              </div>
-              <span>3 teammates active right now</span>
-              <b>✦</b>
+              <span>Tasks, milestones, and team updates</span>
             </div>
           </div>
         </div>
 
         <div className="auth-story-foot">
-          <span>Enterprise-grade security · Realtime WebSockets · Fast keyboard shortcuts</span>
+          <span>Project boards · Team updates · Keyboard shortcuts</span>
         </div>
       </section>
 
@@ -254,7 +214,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </div>
         <div className="auth-form-wrap">
           <div className="auth-eyebrow">
-            <span>{isSignup ? "✳" : "✦"}</span>{" "}
             {isSignup ? "GET STARTED IN SECONDS" : "WELCOME BACK"}
           </div>
           <h2>
@@ -269,163 +228,103 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </p>
 
           <form className="auth-form" onSubmit={submit}>
-            <AnimatePresence>
-              {notice && (
-                <motion.p
-                  className="settings-success"
-                  role="status"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                >
-                  ✓ {notice}
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            {showDemo && (
-              <div className="demo-login-card">
-                <div>
-                  <strong>Want a quick preview?</strong>
-                  <span>Explore Taskflow with sample data and team activity.</span>
-                </div>
-                <button
-                  className="button button-quiet demo-login-button"
-                  type="button"
-                  onClick={() => {
-                    setForm({
-                      name: "",
-                      email: "demo@taskflow.local",
-                      password: "TaskflowDemo2026!",
-                    });
-                    setError("");
-                    setNotice("Demo credentials filled! Click 'Sign in to Taskflow' below.");
-                  }}
-                >
-                  Fill demo account <span>↗</span>
-                </button>
-              </div>
+            {notice && (
+              <Alert role="status">
+                <AlertDescription>{notice}</AlertDescription>
+              </Alert>
             )}
 
-            {isSignup && (
-              <label>
-                Your name
-                <div className="input-shell">
-                  <span className="input-icon">
-                    <UserIcon />
-                  </span>
-                  <input
-                    autoComplete="name"
+            <FieldGroup>
+              {isSignup && (
+                <Field>
+                  <FieldLabel htmlFor="signup-name">Your name</FieldLabel>
+                  <div className="relative">
+                    <UserRound aria-hidden="true" className="auth-input-icon" />
+                    <Input
+                      id="signup-name"
+                      className="auth-shadcn-input"
+                      autoComplete="name"
+                      required
+                      maxLength={40}
+                      placeholder="e.g. Maya Lin"
+                      value={form.name}
+                      onChange={(event) => setForm({ ...form, name: event.target.value })}
+                    />
+                  </div>
+                </Field>
+              )}
+
+              <Field>
+                <FieldLabel htmlFor="auth-email">Work email</FieldLabel>
+                <div className="relative">
+                  <Mail aria-hidden="true" className="auth-input-icon" />
+                  <Input
+                    id="auth-email"
+                    className="auth-shadcn-input"
+                    type="email"
+                    autoComplete="email"
                     required
-                    maxLength={40}
-                    placeholder="e.g. Maya Lin"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="name@company.com"
+                    value={form.email}
+                    onChange={(event) => setForm({ ...form, email: event.target.value })}
                   />
                 </div>
-              </label>
-            )}
+              </Field>
 
-            <label>
-              Work email
-              <div className="input-shell">
-                <span className="input-icon">
-                  <MailIcon />
-                </span>
-                <input
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="name@company.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-            </label>
+              <Field>
+                <FieldLabel htmlFor="auth-password">Password</FieldLabel>
+                <div className="relative">
+                  <LockKeyhole aria-hidden="true" className="auth-input-icon" />
+                  <Input
+                    id="auth-password"
+                    className="auth-shadcn-input auth-password-input"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete={isSignup ? "new-password" : "current-password"}
+                    minLength={isSignup ? 8 : undefined}
+                    required
+                    placeholder={isSignup ? "8+ characters" : "••••••••"}
+                    value={form.password}
+                    onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="auth-password-toggle"
+                    onClick={() => setShowPassword((shown) => !shown)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                  </Button>
+                </div>
+              </Field>
+            </FieldGroup>
 
-            <label>
-              Password
-              <div className="input-shell">
-                <span className="input-icon">
-                  <LockIcon />
-                </span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={isSignup ? "new-password" : "current-password"}
-                  minLength={isSignup ? 8 : undefined}
-                  required
-                  placeholder={isSignup ? "8+ characters" : "••••••••"}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                />
-                <button
-                  type="button"
-                  className="auth-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
-              </div>
-            </label>
-
-            {/* Password strength meter on signup */}
             {isSignup && form.password.length > 0 && (
               <div className="auth-strength-meter">
-                <div className="auth-strength-bars">
-                  <span className={`bar ${strength >= 1 ? "active" : ""}`} />
-                  <span className={`bar ${strength >= 2 ? "active" : ""}`} />
-                  <span className={`bar ${strength >= 3 ? "active" : ""}`} />
-                  <span className={`bar ${strength >= 4 ? "active" : ""}`} />
-                </div>
+                <Progress value={strength * 25} aria-label={`Password strength: ${strength} of 4`} />
                 <small className="auth-strength-text">
-                  {strength <= 1
-                    ? "Too short or simple"
-                    : strength === 2
-                      ? "Fair password"
-                      : strength === 3
-                        ? "Good password"
-                        : "Strong password"}
+                  {strength <= 1 ? "Too short or simple" : strength === 2 ? "Fair password" : strength === 3 ? "Good password" : "Strong password"}
                 </small>
               </div>
             )}
 
             {!isSignup && (
               <div className="auth-options">
-                <label className="remember-option">
-                  <input type="checkbox" defaultChecked /> <span>Keep me signed in</span>
-                </label>
                 <Link href="/forgot-password">Forgot password?</Link>
               </div>
             )}
 
-            <AnimatePresence>
-              {error && (
-                <motion.p
-                  className="auth-error"
-                  role="alert"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                >
-                  {error}
-                </motion.p>
-              )}
-            </AnimatePresence>
+            {error && (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-            <ClickSpark sparkColor="#7c6df0">
-              <button className="button button-primary auth-submit" type="submit" disabled={busy}>
-                {busy
-                  ? isSignup
-                    ? "Creating your space…"
-                    : "Signing you in…"
-                  : isSignup
-                    ? "Create free account"
-                    : "Sign in to Taskflow"}
-                <span>↗</span>
-              </button>
-            </ClickSpark>
+            <Button className="auth-submit w-full" type="submit" size="lg" disabled={busy}>
+              {busy ? (isSignup ? "Creating your space…" : "Signing you in…") : (isSignup ? "Create free account" : "Sign in to Taskflow")}
+            </Button>
           </form>
 
           <div className="auth-switch">
@@ -441,14 +340,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </Link>
           </div>
 
-          <div className="auth-privacy">
-            <span>Secure</span> SSO-ready · Encrypted sessions · GDPR ready
-          </div>
+              <div className="auth-privacy">
+                Passwords are hashed · Sessions expire after 8 hours
+              </div>
         </div>
         </div>
 
         <footer className="auth-footer">
-          <span>© 2026 Taskflow Inc. All rights reserved.</span>
+          <span className="site-copyright">© 2026 Taskflow Inc. All rights reserved.</span>
           <div className="auth-footer-links">
             <Link href="/">Home</Link>
             <Link href="/forgot-password">Reset password</Link>

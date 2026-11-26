@@ -1,0 +1,59 @@
+.aero-shards {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.aero-shards-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.aero-shards-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.58;
+}
+
+.aero-shards-fallback__facet {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(160, 151, 245, 0.42);
+  background: linear-gradient(145deg, rgba(151, 135, 242, 0.28), rgba(88, 214, 197, 0.08));
+  clip-path: polygon(48% 0, 100% 28%, 78% 100%, 0 72%);
+  filter: drop-shadow(0 0 22px rgba(151, 135, 242, 0.24));
+}
+
+.aero-shards-fallback__facet--one {
+  top: 18%;
+  left: 59%;
+  width: 25%;
+  height: 48%;
+  transform: rotate(11deg);
+}
+
+.aero-shards-fallback__facet--two {
+  top: 49%;
+  left: 42%;
+  width: 17%;
+  height: 33%;
+  opacity: 0.65;
+  transform: rotate(-17deg);
+}
+
+.aero-shards-fallback__facet--three {
+  top: 67%;
+  left: 78%;
+  width: 12%;
+  height: 21%;
+  opacity: 0.46;
+  transform: rotate(19deg);
+}

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { api, getToken } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Profile = { id: string; display_name: string; email: string; created_at: string };
 
@@ -27,9 +31,9 @@ export default function ProfilePage() {
     <AppShell>
       <div className="profile-wrap">
         <Link className="back-link" href="/projects">
-          ← Back to workspace
+          <ArrowLeft aria-hidden="true" size={15} /> Back to workspace
         </Link>
-        {error && <p className="auth-error">{error}</p>}
+        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
         {profile && (
           <>
             <section className="profile-hero">
@@ -41,14 +45,17 @@ export default function ProfilePage() {
                 <h1>{profile.display_name}</h1>
                 <p>{profile.email}</p>
               </div>
-              <Link className="button button-primary" href="/settings">
-                Edit profile <span>↗</span>
+              <Link className={buttonVariants()} href="/settings">
+                Edit profile <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
               </Link>
             </section>
             <section className="profile-detail-grid">
-              <article className="settings-card">
-                <span className="workspace-overline">ABOUT YOUR ACCOUNT</span>
-                <h2>Good work starts here.</h2>
+              <Card className="settings-card">
+                <CardHeader>
+                  <span className="workspace-overline">ABOUT YOUR ACCOUNT</span>
+                  <CardTitle>Good work starts here.</CardTitle>
+                </CardHeader>
+                <CardContent>
                 <p>
                   Your Taskflow account is where you organize projects, collaborate with
                   teammates, and keep track of the work that matters.
@@ -66,12 +73,13 @@ export default function ProfilePage() {
                   <span>Account email</span>
                   <b>{profile.email}</b>
                 </div>
-              </article>
+                </CardContent>
+              </Card>
               <article className="profile-settings-promo">
                 <span className="settings-icon">⚙</span>
                 <h2>Make it yours</h2>
                 <p>Update your personal details or change your password in account settings.</p>
-                <Link href="/settings">Go to account settings →</Link>
+                <Link href="/settings">Go to account settings <ArrowRight aria-hidden="true" size={15} /></Link>
               </article>
             </section>
           </>
