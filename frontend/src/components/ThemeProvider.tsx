@@ -47,6 +47,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
       setResolvedTheme(active);
       document.documentElement.setAttribute("data-theme", active);
+      document.documentElement.classList.toggle("dark", active === "dark");
     };
 
     applyTheme();

@@ -5,96 +5,100 @@ import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import { EVENT_TYPE_LABELS, type NotifPreference } from "@/lib/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function NotificationPreferencesPage() {
   const router = useRouter();
-  const [prefs, setPrefs]   = useState<NotifPreference[]>([]);
-  const [error, setError]   = useState("");
+  const [prefs, setPrefs] = useState<NotifPreference[]>([]);
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [busy, setBusy]     = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!getToken()) { router.replace("/login"); return; }
+    if (!getToken()) {
+      router.replace("/login");
+      return;
+    }
     api<NotifPreference[]>("/api/notification-preferences")
       .then(setPrefs)
-      .catch((e) => setError(e.message));
+      .catch((reason) => setError(reason.message));
   }, [router]);
 
   function toggle(eventType: string, field: "in_app" | "email_enabled") {
-    setPrefs((l) => l.map((p) => p.event_type === eventType ? { ...p, [field]: !p[field] } : p));
+    setPrefs((items) => items.map((item) => item.event_type === eventType ? { ...item, [field]: !item[field] } : item));
   }
 
   async function save() {
-    setBusy(true); setError(""); setSuccess("");
+    setBusy(true);
+    setError("");
+    setSuccess("");
     try {
       await api("/api/notification-preferences", { method: "PATCH", body: JSON.stringify({ preferences: prefs }) });
       setSuccess("Notification preferences saved.");
-    } catch (e) { setError((e as Error).message); }
-    finally { setBusy(false); }
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <AppShell>
       <div className="wrap" id="main">
-        <div className="workspace-intro">
+        <header className="workspace-intro">
           <div>
             <span className="workspace-overline">YOUR ACCOUNT</span>
             <h1>Notification preferences</h1>
-            <p>Choose which events trigger in-app and email notifications.</p>
+            <p>Choose which events should reach you in Taskflow or by email.</p>
           </div>
-        </div>
+        </header>
 
-        {error   && <p className="auth-error" role="alert">{error}</p>}
-        {success && <p className="workspace-success" role="status">✓ {success}</p>}
+        {error && <Alert variant="destructive" className="mb-5"><AlertDescription>{error}</AlertDescription></Alert>}
+        {success && <Alert className="mb-5" role="status"><AlertDescription>{success}</AlertDescription></Alert>}
 
-        <section className="settings-card">
-          <table className="notif-pref-table" aria-label="Notification preferences">
-            <thead>
-              <tr>
-                <th scope="col">Event</th>
-                <th scope="col">In-app</th>
-                <th scope="col">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prefs.map((pref) => (
-                <tr key={pref.event_type}>
-                  <td>{EVENT_TYPE_LABELS[pref.event_type] ?? pref.event_type}</td>
-                  <td>
-                    <label className="toggle-wrap" aria-label={`In-app notifications for ${EVENT_TYPE_LABELS[pref.event_type] ?? pref.event_type}`}>
-                      <input
-                        type="checkbox"
-                        checked={pref.in_app}
-                        onChange={() => toggle(pref.event_type, "in_app")}
-                        role="switch"
-                        aria-checked={pref.in_app}
-                      />
-                      <span className="toggle-slider" />
-                    </label>
-                  </td>
-                  <td>
-                    <label className="toggle-wrap" aria-label={`Email notifications for ${EVENT_TYPE_LABELS[pref.event_type] ?? pref.event_type}`}>
-                      <input
-                        type="checkbox"
-                        checked={pref.email_enabled}
-                        onChange={() => toggle(pref.event_type, "email_enabled")}
-                        role="switch"
-                        aria-checked={pref.email_enabled}
-                      />
-                      <span className="toggle-slider" />
-                    </label>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="field-help" style={{ marginTop: 12 }}>
-            Email notifications require SMTP to be configured on the server.
-          </p>
-          <button className="button button-primary settings-save" disabled={busy} onClick={save} style={{ marginTop: 20 }}>
-            {busy ? "Saving…" : "Save preferences"}
-          </button>
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Event delivery</CardTitle>
+            <CardDescription>Choose the channels you want to hear from for each update.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table aria-label="Notification preferences">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event</TableHead>
+                    <TableHead className="w-28 text-center">In-app</TableHead>
+                    <TableHead className="w-28 text-center">Email</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {prefs.map((pref) => {
+                    const label = EVENT_TYPE_LABELS[pref.event_type] ?? pref.event_type;
+                    return (
+                      <TableRow key={pref.event_type}>
+                        <TableCell className="font-medium">{label}</TableCell>
+                        <TableCell className="text-center">
+                          <Switch checked={pref.in_app} onCheckedChange={() => toggle(pref.event_type, "in_app")} aria-label={`In-app notifications for ${label}`} />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Switch checked={pref.email_enabled} onCheckedChange={() => toggle(pref.event_type, "email_enabled")} aria-label={`Email notifications for ${label}`} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+            <p className="field-help">Email notifications require SMTP to be configured on the server.</p>
+            <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save preferences"}</Button>
+          </CardFooter>
+        </Card>
       </div>
     </AppShell>
   );

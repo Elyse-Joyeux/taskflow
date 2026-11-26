@@ -6,6 +6,9 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { api, getToken } from "@/lib/api";
 import { STATUS_LABEL, type Priority, type Status } from "@/lib/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type CalTask = {
   id: string;
@@ -83,18 +86,19 @@ export default function CalendarPage() {
             <h1>Calendar</h1>
             <p>All tasks with start or due dates across your projects.</p>
           </div>
-          <Link className="button button-primary" href="/projects">Open projects <span>↗</span></Link>
+          <Link className={buttonVariants()} href="/projects">Open projects <span aria-hidden="true">↗</span></Link>
         </div>
 
-        {error && <p className="auth-error" role="alert">{error}</p>}
+        {error && <Alert variant="destructive" role="alert"><AlertDescription>{error}</AlertDescription></Alert>}
 
-        <div className="calendar-shell">
-          <div className="calendar-header">
-            <button className="cal-nav" onClick={prev} aria-label="Previous month">‹</button>
+        <Card className="calendar-shell">
+          <CardHeader className="calendar-header">
+            <Button variant="ghost" size="icon" className="cal-nav" onClick={prev} aria-label="Previous month">‹</Button>
             <h2>{MONTHS[month]} {year}</h2>
-            <button className="cal-nav" onClick={next} aria-label="Next month">›</button>
-            <button className="button button-quiet" onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setSelected(null); }}>Today</button>
-          </div>
+            <Button variant="ghost" size="icon" className="cal-nav" onClick={next} aria-label="Next month">›</Button>
+            <Button variant="outline" size="sm" onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setSelected(null); }}>Today</Button>
+          </CardHeader>
+          <CardContent>
 
           {loading && <p className="mut" style={{ textAlign: "center", padding: "20px" }}>Loading…</p>}
 
@@ -114,7 +118,12 @@ export default function CalendarPage() {
                   role="button"
                   tabIndex={0}
                   aria-label={`${MONTHS[day.getMonth()]} ${day.getDate()}, ${dayTasks.length} tasks`}
-                  onKeyDown={(e) => e.key === "Enter" && setSelected(isSelected ? null : iso)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelected(isSelected ? null : iso);
+                    }
+                  }}
                 >
                   <span className="cal-date">{day.getDate()}</span>
                   <div className="cal-task-pills">
@@ -136,7 +145,8 @@ export default function CalendarPage() {
               );
             })}
           </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* ── Day detail panel ── */}
         {selected && selectedTasks.length > 0 && (

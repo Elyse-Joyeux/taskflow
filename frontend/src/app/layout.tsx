@@ -1,8 +1,12 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import { DM_Sans, Manrope } from "next/font/google";
+import { DM_Sans, Manrope, Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AppToaster from "@/components/AppToaster";
+import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const bodyFont = DM_Sans({
   subsets: ["latin"],
@@ -17,8 +21,8 @@ const headingFont = Manrope({
 });
 
 export const metadata = {
-  title: "Taskflow — Focused team project management",
-  description: "Plan projects, prioritize tasks, and keep your team moving together in Taskflow.",
+  title: "Taskflow — Project work, in a clearer flow",
+  description: "Bring tasks, projects, and team updates together in a calm workspace built for meaningful progress.",
 };
 
 const themeScript = `
@@ -30,13 +34,14 @@ const themeScript = `
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   } catch (e) {}
 })();
 `;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${headingFont.variable}`} suppressHydrationWarning>
+    <html lang="en" className={cn(bodyFont.variable, headingFont.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -45,8 +50,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <ThemeProvider>
-          {children}
-          <AppToaster />
+          <TooltipProvider>
+            {children}
+            <AppToaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

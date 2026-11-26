@@ -24,7 +24,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Plus, UserPlus } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import AppShell from "@/components/AppShell";
 import TaskModal from "@/components/TaskModal";
 import { api, getToken } from "@/lib/api";
@@ -567,73 +572,69 @@ export default function Board() {
           </div>
 
           {/* View Toggle (Board | List) */}
-          <div className="view-toggle">
-            <button
-              className={viewMode === "board" ? "active" : ""}
-              onClick={() => switchView("board")}
-              aria-label="Board view"
-            >
-              Board
-            </button>
-            <button
-              className={viewMode === "list" ? "active" : ""}
-              onClick={() => switchView("list")}
-              aria-label="List view"
-            >
-              List
-            </button>
-          </div>
-
-          <button
-            className="invite-trigger"
-            onClick={() => {
-              setInviteOpen(true);
-            }}
+          <ToggleGroup
+            value={[viewMode]}
+            onValueChange={(values) => values.length > 0 && switchView(values[values.length - 1] as "board" | "list")}
+            variant="outline"
+            size="sm"
+            aria-label="Project view"
+            className="view-toggle"
           >
-            <span>＋</span> Invite people
-          </button>
+            <ToggleGroupItem value="board">Board</ToggleGroupItem>
+            <ToggleGroupItem value="list">List</ToggleGroupItem>
+          </ToggleGroup>
+
+          <Button variant="outline" size="sm" onClick={() => setInviteOpen(true)}>
+            <UserPlus aria-hidden="true" data-icon="inline-start" /> Invite people
+          </Button>
         </div>
 
         {/* Toolbar: Search, Filters, Count */}
         <div className="board-toolbar">
           <label className="board-search">
-            <span>⌕</span>
-            <input
+            <span className="sr-only">Search tasks</span>
+            <Input
+              aria-label="Search tasks, descriptions, and tags"
               placeholder="Search tasks, descriptions, tags…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="board-filter">
-            Priority
-            <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
-              <option value="all">All priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+            <span>Priority</span>
+            <Select value={priorityFilter} onValueChange={(value) => value && setPriorityFilter(value)}>
+              <SelectTrigger aria-label="Filter by priority"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectGroup>
+                <SelectItem value="all">All priorities</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectGroup></SelectContent>
+            </Select>
           </label>
           <label className="board-filter">
-            Assignee
-            <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)}>
-              <option value="all">Anyone</option>
-              <option value="unassigned">Unassigned</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.display_name}
-                </option>
-              ))}
-            </select>
+            <span>Assignee</span>
+            <Select value={assigneeFilter} onValueChange={(value) => value && setAssigneeFilter(value)}>
+              <SelectTrigger aria-label="Filter by assignee"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectGroup>
+                <SelectItem value="all">Anyone</SelectItem>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {members.map((member) => <SelectItem key={member.id} value={member.id}>{member.display_name}</SelectItem>)}
+              </SelectGroup></SelectContent>
+            </Select>
           </label>
           <label className="board-filter">
-            Sort
-            <select value={sortKey} onChange={(e) => setSortKey(e.target.value as typeof sortKey)}>
-              <option value="manual">Board order</option>
-              <option value="due">Due date</option>
-              <option value="priority">Priority</option>
-              <option value="title">Title</option>
-            </select>
+            <span>Sort</span>
+            <Select value={sortKey} onValueChange={(value) => value && setSortKey(value as typeof sortKey)}>
+              <SelectTrigger aria-label="Sort tasks"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectGroup>
+                <SelectItem value="manual">Board order</SelectItem>
+                <SelectItem value="due">Due date</SelectItem>
+                <SelectItem value="priority">Priority</SelectItem>
+                <SelectItem value="title">Title</SelectItem>
+              </SelectGroup></SelectContent>
+            </Select>
           </label>
           <span className="board-result-count">
             {filteredTasks.length} {filteredTasks.length === 1 ? "task" : "tasks"}
@@ -645,8 +646,8 @@ export default function Board() {
             <div className="empty-illustration">✓</div>
             <h3>No tasks match these filters.</h3>
             <p>Clear search or filters to see the rest of the board.</p>
-            <button
-              className="button button-secondary"
+            <Button
+              variant="outline"
               onClick={() => {
                 setQuery("");
                 setPriorityFilter("all");
@@ -654,7 +655,7 @@ export default function Board() {
               }}
             >
               Clear filters
-            </button>
+            </Button>
           </section>
         )}
 

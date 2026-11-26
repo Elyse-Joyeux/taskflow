@@ -3,11 +3,19 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Activity, AlertTriangle, ArrowUpRight, CheckCheck, FolderKanban, ListTodo } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { api, getToken, getWorkspaceId, setWorkspaceId } from "@/lib/api";
 import { STATUS_LABEL, type Status } from "@/lib/types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type Dashboard = {
+ type Dashboard = {
   stats: {
     project_count: number;
     task_count: number;
@@ -31,6 +39,8 @@ type Dashboard = {
 };
 
 const actionLabel = (action: string) => action.replaceAll(".", " ").replaceAll("_", " ");
+const statuses: Status[] = ["backlog", "todo", "in_progress", "in_review", "blocked", "done"];
+const priorities = ["urgent", "high", "medium", "low"];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -64,10 +74,7 @@ export default function DashboardPage() {
       return;
     }
     void loadDashboard();
-
-    const onWorkspaceChanged = () => {
-      void loadDashboard();
-    };
+    const onWorkspaceChanged = () => void loadDashboard();
     window.addEventListener("workspace-changed", onWorkspaceChanged);
     return () => window.removeEventListener("workspace-changed", onWorkspaceChanged);
   }, [router, loadDashboard, refreshKey]);
@@ -78,156 +85,135 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <div className="wrap dashboard-wrap" id="main">
-        <div className="workspace-intro">
+        <header className="workspace-intro">
           <div>
-            <span className="workspace-overline">ANALYTICS</span>
-            <h1>Workspace dashboard</h1>
-            <p>Live counts from your database, not a static mock.</p>
+            <span className="workspace-overline">WORKSPACE OVERVIEW</span>
+            <h1>Your work, at a glance</h1>
+            <p>A live pulse on project progress and the work ahead.</p>
           </div>
-          <Link className="button button-primary" href="/projects">
-            Open projects <span>↗</span>
+          <Link className={buttonVariants({ variant: "outline" })} href="/projects">
+            Open projects <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
           </Link>
-        </div>
+        </header>
 
         {error && (
-          <div className="dashboard-error" role="alert">
-            <div>
-              <b>Dashboard data could not be loaded</b>
-              <p>{error}</p>
-            </div>
-            <button className="button button-primary" onClick={() => setRefreshKey((key) => key + 1)}>
-              Try again
-            </button>
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle aria-hidden="true" />
+            <AlertTitle>Dashboard data could not be loaded</AlertTitle>
+            <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
+              <span>{error}</span>
+              <Button variant="outline" size="sm" onClick={() => setRefreshKey((key) => key + 1)}>Try again</Button>
+            </AlertDescription>
+          </Alert>
         )}
 
         {loading && (
-          <section className="dashboard-loading" role="status" aria-live="polite">
-            <span className="dashboard-spinner" />
-            <b>Loading workspace analytics</b>
-            <span>Gathering project and task activity…</span>
-            <div className="dashboard-skeletons">
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" role="status" aria-label="Loading workspace analytics">
+            {[1, 2, 3, 4].map((item) => (
+              <Card key={item}><CardHeader><Skeleton className="h-4 w-24" /></CardHeader><CardContent><Skeleton className="h-9 w-16" /></CardContent></Card>
+            ))}
           </section>
         )}
 
         {data && (
           <>
-            <section className="workspace-stats dashboard-stats">
-              <div className="stat-card">
-                <span className="stat-icon">▦</span>
-                <div>
-                  <strong>
-                    {data.stats.project_count}
-                  </strong>
-                  <small>Projects</small>
-                </div>
-              </div>
-              <div className="stat-card">
-                <span className="stat-icon">◷</span>
-                <div>
-                  <strong>
-                    {data.stats.open_count}
-                  </strong>
-                  <small>Open tasks</small>
-                </div>
-              </div>
-              <div className="stat-card">
-                <span className="stat-icon">✓</span>
-                <div>
-                  <strong>
-                    {data.stats.completed_this_week}
-                  </strong>
-                  <small>Done this week</small>
-                </div>
-              </div>
-              <div className="stat-card">
-                <span className="stat-icon">!</span>
-                <div>
-                  <strong>
-                    {data.stats.overdue_count}
-                  </strong>
-                  <small>Overdue</small>
-                </div>
-              </div>
+            <section className="workspace-stats dashboard-stats" aria-label="Workspace metrics">
+              {[
+                { label: "Projects", value: data.stats.project_count, icon: FolderKanban, tone: "bg-primary/10 text-primary" },
+                { label: "Open tasks", value: data.stats.open_count, icon: ListTodo, tone: "bg-secondary text-secondary-foreground" },
+                { label: "Completed this week", value: data.stats.completed_this_week, icon: CheckCheck, tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+                { label: "Overdue", value: data.stats.overdue_count, icon: AlertTriangle, tone: "bg-destructive/10 text-destructive" },
+              ].map(({ label, value, icon: Icon, tone }) => (
+                <Card className="stat-card" key={label}>
+                  <CardContent className="flex items-center gap-4 p-5">
+                    <span className={`grid size-10 place-items-center rounded-xl ${tone}`}><Icon aria-hidden="true" /></span>
+                    <div><strong>{value}</strong><small>{label}</small></div>
+                  </CardContent>
+                </Card>
+              ))}
             </section>
+
             <div className="dashboard-grid">
-              <section className="settings-card">
-                <h2>Workflow mix</h2>
-                <div className="chart-list" role="list" aria-label="Task counts by workflow status">
-                  {(["backlog", "todo", "in_progress", "in_review", "blocked", "done"] as Status[]).map((status) => {
+              <Card>
+                <CardHeader>
+                  <CardTitle>Workflow mix</CardTitle>
+                  <CardDescription>Tasks across every project status.</CardDescription>
+                </CardHeader>
+                <CardContent className="chart-list">
+                  {statuses.map((status) => {
                     const count = data.by_status.find((row) => row.status === status)?.count ?? 0;
                     return (
-                      <div className={`chart-row chart-status-${status}`} key={status} role="listitem">
+                      <div className="dashboard-metric-row" key={status}>
                         <span>{STATUS_LABEL[status]}</span>
-                        <div className="chart-bar" aria-hidden="true">
-                          <i style={{ width: `${Math.max(4, (count / totalStatus) * 100)}%` }} />
-                        </div>
-                        <b>
-                          {count}
-                        </b>
+                        <Progress value={(count / totalStatus) * 100} aria-label={`${STATUS_LABEL[status]}: ${count} tasks`} />
+                        <strong>{count}</strong>
                       </div>
                     );
                   })}
-                </div>
-              </section>
-              <section className="settings-card">
-                <h2>Priority mix</h2>
-                <div className="chart-list" role="list" aria-label="Task counts by priority">
-                  {["urgent", "high", "medium", "low"].map((priority) => {
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Priority mix</CardTitle>
+                  <CardDescription>See what needs attention first.</CardDescription>
+                </CardHeader>
+                <CardContent className="chart-list">
+                  {priorities.map((priority) => {
                     const count = data.by_priority.find((row) => row.priority === priority)?.count ?? 0;
                     return (
-                      <div className={`chart-row chart-priority-${priority}`} key={priority} role="listitem">
-                        <span className="priority-badge" style={{ textTransform: "capitalize" }}>
-                          {priority}
-                        </span>
-                        <div className="chart-bar" aria-hidden="true">
-                          <i style={{ width: `${Math.max(4, (count / totalPriority) * 100)}%` }} />
-                        </div>
-                        <b>
-                          {count}
-                        </b>
+                      <div className="dashboard-metric-row" key={priority}>
+                        <Badge variant={priority === "urgent" ? "destructive" : "secondary"}>{priority}</Badge>
+                        <Progress value={(count / totalPriority) * 100} aria-label={`${priority}: ${count} tasks`} />
+                        <strong>{count}</strong>
                       </div>
                     );
                   })}
-                </div>
-                <p className="field-help">
-                  Remaining estimated effort: {Number(data.stats.remaining_hours || 0).toFixed(1)} hours
-                </p>
-              </section>
+                  <p className="field-help mt-3 border-t border-border pt-3">Remaining estimated effort: {Number(data.stats.remaining_hours || 0).toFixed(1)} hours</p>
+                </CardContent>
+              </Card>
             </div>
-            <section className="settings-card">
-              <h2>Recent activity</h2>
-              <div className="community-activity-list">
-                {data.recent.length === 0 && <p className="mut">No activity in this workspace yet.</p>}
-                {data.recent.map((event) => (
-                  <article className="community-activity" key={event.id}>
-                    <div>
-                      <p>
-                        <b>{event.actor_name || "Someone"}</b> {actionLabel(event.action)}
-                        {event.task_title ? ` · ${event.task_title}` : ""} in <strong>{event.project_name}</strong>
-                      </p>
-                      <small>{new Date(event.created_at).toLocaleString()}</small>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+
+            <Card className="mt-5">
+              <CardHeader>
+                <CardTitle>Recent activity</CardTitle>
+                <CardDescription>The latest changes from your team.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data.recent.length === 0 ? (
+                  <Empty className="py-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon"><Activity aria-hidden="true" /></EmptyMedia>
+                      <EmptyTitle>No activity yet</EmptyTitle>
+                      <EmptyDescription>When your team updates tasks and projects, you&apos;ll see it here.</EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                ) : (
+                  <div className="community-activity-list">
+                    {data.recent.map((event) => (
+                      <article className="community-activity" key={event.id}>
+                        <div>
+                          <p><b>{event.actor_name || "Someone"}</b> {actionLabel(event.action)}{event.task_title ? ` · ${event.task_title}` : ""} in <Link className="font-medium text-foreground hover:text-primary" href={`/projects/${event.project_id}`}>{event.project_name}</Link></p>
+                          <small>{new Date(event.created_at).toLocaleString()}</small>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </>
         )}
+
         {!loading && !error && !data && (
-          <section className="dashboard-empty">
-            <span>▦</span>
-            <h2>No workspace data yet</h2>
-            <p>Create a workspace or join a team to see project analytics here.</p>
-            <Link className="button button-primary" href="/workspaces">
-              Manage workspaces <span>↗</span>
-            </Link>
-          </section>
+          <Empty className="rounded-2xl border border-dashed bg-card px-6 py-16">
+            <EmptyHeader>
+              <EmptyMedia variant="icon"><FolderKanban aria-hidden="true" /></EmptyMedia>
+              <EmptyTitle>No workspace data yet</EmptyTitle>
+              <EmptyDescription>Create a workspace or join a team to see project analytics here.</EmptyDescription>
+            </EmptyHeader>
+            <Link className={buttonVariants()} href="/workspaces">Manage workspaces</Link>
+          </Empty>
         )}
       </div>
     </AppShell>
