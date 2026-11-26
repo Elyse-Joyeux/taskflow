@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getToken } from '@/lib/api'
 import { CircleCheck, ListChecks, Target, UsersRound } from 'lucide-react'
+import AeroShards from '@/components/AeroShards'
 import { useTheme } from '@/components/ThemeProvider'
 
 function BrandMark({ size = 28 }: { size?: number }) {
@@ -88,7 +89,10 @@ export default function Home() {
 
         {/* Hero visual */}
         <div className="hero-visual" role="group" aria-label="Interactive Taskflow product preview">
-            <div className="board-window">
+          <div className="hero-shard-layer" aria-hidden="true">
+            <AeroShards enabled={false} style={{ width: '100%', height: '100%' }} />
+          </div>
+          <div className="board-window">
               <div className="window-top">
                 <div className="window-dots" aria-hidden="true"><i/><i/><i/></div>
                 <span>Website refresh</span>

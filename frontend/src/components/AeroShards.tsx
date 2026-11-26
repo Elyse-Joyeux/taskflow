@@ -957,6 +957,7 @@ const createShards = (count, seed) => {
 };
 
 export default function AeroShards({
+  enabled = true,
   shardColor = '#896ABD',
   accentColor = '#A855F7',
   backgroundColor = 'transparent',
@@ -1024,7 +1025,7 @@ export default function AeroShards({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return undefined;
+    if (!enabled || !container) return undefined;
     const canvas = document.createElement('canvas');
     canvas.className = CANVAS;
     container.appendChild(canvas);
@@ -1040,6 +1041,7 @@ export default function AeroShards({
       cancelAnimationFrame(raf);
       gpu?.dispose();
       gpu = null;
+      canvas.remove();
       onErrorRef.current?.(error instanceof Error ? error : new Error(String(error)));
     };
 
@@ -2207,18 +2209,24 @@ export default function AeroShards({
         state.holding = false;
       };
 
-      window.addEventListener('pointermove', onMove, { passive: true });
-      window.addEventListener('pointerdown', onDown);
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onUp);
-      document.documentElement.addEventListener('pointerleave', onLeave);
-      cleanups.push(() => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerdown', onDown);
-        window.removeEventListener('pointerup', onUp);
-        window.removeEventListener('pointercancel', onUp);
-        document.documentElement.removeEventListener('pointerleave', onLeave);
-      });
+      const interactionSettings = settingsRef.current;
+      const hasInteractions = interactionSettings.mouseInteraction || interactionSettings.pulseOnClick || interactionSettings.holdToGather;
+      if (hasInteractions) {
+        if (interactionSettings.mouseInteraction) {
+          window.addEventListener('pointermove', onMove, { passive: true });
+          document.documentElement.addEventListener('pointerleave', onLeave);
+        }
+        window.addEventListener('pointerdown', onDown);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+        cleanups.push(() => {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerdown', onDown);
+          window.removeEventListener('pointerup', onUp);
+          window.removeEventListener('pointercancel', onUp);
+          document.documentElement.removeEventListener('pointerleave', onLeave);
+        });
+      }
 
       const isInViewport = () => {
         const bounds = container.getBoundingClientRect();
@@ -2243,7 +2251,7 @@ export default function AeroShards({
       gpu?.dispose();
       canvas.remove();
     };
-  }, []);
+  }, [enabled]);
 
   return (
     <div ref={containerRef} className={[ROOT, className].filter(Boolean).join(' ')} style={style}>

@@ -76,28 +76,12 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  const [shardsEnabled, setShardsEnabled] = useState(false);
 
   useEffect(() => {
     if (!isSignup && new URLSearchParams(window.location.search).get("passwordReset") === "1") {
       setNotice("Your password has been updated. Sign in with your new password.");
     }
   }, [isSignup]);
-
-  useEffect(() => {
-    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const desktopViewport = window.matchMedia("(min-width: 861px)");
-    const updateShaderPreference = () => {
-      setShardsEnabled(desktopViewport.matches && !motionPreference.matches);
-    };
-    updateShaderPreference();
-    motionPreference.addEventListener("change", updateShaderPreference);
-    desktopViewport.addEventListener("change", updateShaderPreference);
-    return () => {
-      motionPreference.removeEventListener("change", updateShaderPreference);
-      desktopViewport.removeEventListener("change", updateShaderPreference);
-    };
-  }, []);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -182,29 +166,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       {/* Left Story Section */}
       <section className="auth-story">
-        {shardsEnabled && (
-          <div className="auth-shard-layer" aria-hidden="true">
-            <AeroShards
-              shardColor={resolvedTheme === "dark" ? "#9787f2" : "#7062c9"}
-              accentColor={resolvedTheme === "dark" ? "#58d6c5" : "#2f9f90"}
-              lightMode={resolvedTheme !== "dark"}
-              placement="full"
-              material="glass"
-              markers="plus"
-              count={560}
-              depthOfField={0.65}
-              glow={0.4}
-              vignette={0.38}
-              mouseInteraction
-              mouseStrength={0.45}
-              parallax={0.35}
-              pulseOnClick
-              holdToGather
-              dpr={1.25}
-              style={{ width: "100%", height: "100%" }}
-            />
-          </div>
-        )}
+        <div className="auth-shard-layer" aria-hidden="true">
+          <AeroShards enabled={false} style={{ width: "100%", height: "100%" }} />
+        </div>
         <Link className="brand auth-brand" href="/">
           <BrandMark />
           <span>taskflow</span>
