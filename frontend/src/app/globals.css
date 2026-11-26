@@ -1297,24 +1297,24 @@ h1, h2, h3, h4, h5 { font-family: var(--font-head); }
   mask-image: linear-gradient(90deg, transparent 0%, transparent 62%, rgba(0, 0, 0, 0.12) 82%, #000 100%);
 }
 .auth-shard-layer .aero-shards { position: absolute; inset: 0; }
-.auth-shard-layer .aero-shards-fallback { opacity: 0.22; }
+.auth-shard-layer .aero-shards-fallback { opacity: 0.38; }
 .auth-shard-layer .aero-shards-fallback__facet--one {
-  top: 20%;
-  left: 74%;
-  width: 20%;
-  height: 38%;
+  top: 12%;
+  left: 58%;
+  width: 34%;
+  height: 56%;
 }
 .auth-shard-layer .aero-shards-fallback__facet--two {
-  top: 55%;
-  left: 66%;
-  width: 15%;
-  height: 24%;
+  top: 44%;
+  left: 42%;
+  width: 24%;
+  height: 40%;
 }
 .auth-shard-layer .aero-shards-fallback__facet--three {
-  top: 76%;
-  left: 82%;
-  width: 11%;
-  height: 16%;
+  top: 68%;
+  left: 76%;
+  width: 18%;
+  height: 28%;
 }
 .auth-brand { font-size: 20px; position: relative; z-index: 2; color: var(--ink); }
 .auth-brand .brand { color: var(--ink); }

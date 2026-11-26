@@ -127,7 +127,17 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       {/* Left Story Section */}
       <section className="auth-story">
         <div className="auth-shard-layer" aria-hidden="true">
-          <AeroShards enabled={false} style={{ width: "100%", height: "100%" }} />
+          <AeroShards
+            enabled
+            placement="right"
+            count={420}
+            speed={0.45}
+            dpr={1}
+            mouseInteraction={false}
+            pulseOnClick={false}
+            holdToGather={false}
+            style={{ width: "100%", height: "100%" }}
+          />
         </div>
         <Link className="brand auth-brand" href="/">
           <BrandMark />

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import AeroShards from "@/components/AeroShards";
 
 function BrandMark() {
   return <span className="brand-mark" aria-hidden="true"><span /><span /><span /><span /></span>;
@@ -69,6 +70,19 @@ export default function ForgotPasswordPage() {
   return (
     <main id="content" className="auth-shell">
       <section className="auth-story" aria-label="Taskflow account recovery">
+        <div className="auth-shard-layer" aria-hidden="true">
+          <AeroShards
+            enabled
+            placement="right"
+            count={420}
+            speed={0.45}
+            dpr={1}
+            mouseInteraction={false}
+            pulseOnClick={false}
+            holdToGather={false}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
         <Link className="brand auth-brand" href="/"><BrandMark /><span>taskflow</span></Link>
         <div className="story-content">
           <span className="story-kicker"><i /> YOUR ACCOUNT, YOURS AGAIN</span>
